@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'HubFontText';
+  src: url('../fonts/ec.woff2') format('woff2') /* Super Modern Browsers */
+  
+}
+
+html{
+	background-color: #000000 !important;
+}
+
+body{
+	font-family: 'HubFontText';
+}
+
+#welcomeby{
+	
+}
+
+
+
+#tableContainer{
+	margin-top:5px;
+}
+
+#datatable{
+	background-color: #333333;
+	width:100%;
+	text-align:center;
+}
+
+.gridbtn{
+	border: 1px solid #cecece;
+	text-align:center;
+	margin:5px;
+	cursor:pointer;
+}
+
+.gridbtn:hover{
+	background-color: #DCDCDC;
+}
+
+.gridStarRow:hover{
+	background-color: #EBE1D3;
+	
+}
+
+.gridStarName{
+	cursor:pointer;
+}
+
+.gridStarColor{
+	width:20px;
+	height:20px;
+	margin-left:auto;
+	margin-right:auto;
+}
