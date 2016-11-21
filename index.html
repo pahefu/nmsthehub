@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link rel="stylesheet" href="./css/concise.min.css">
+		<link rel="stylesheet" href="./css/concise-ui.min.css">
+		<link rel="stylesheet" href="./css/concise-utils.min.css">
+		
+		<link rel="stylesheet" href="./css/style.css">
+		<link rel="stylesheet" href="./css/hubfont.css">
+				
+		<script src="./js/numeric-1.2.6.min.js"></script>
+		<script src="./js/mds.js"></script>
+		<script src="./js/gl-matrix-min.js"></script>
+		<script src="./js/phoria-min.js"></script>
+		<script src="./js/dat.gui.min.js"></script>
+		<script src="./js/trilateration.js"></script>
+		
+		<script src="./js/zepto.min.js"></script>
+		<script src="./js/mustache.min.js"></script>
+		<script src="./js/rdl.js"></script>
+		
+		<script src="./js/hgrid.js"></script>
+		
+		<title>NMS The HUB: Management System</title>
+	</head>
+	<body>
+
+		<script type="text/javascript">
+			var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
+                       window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
+                       function(c) {window.setTimeout(c, 250)};
+
+			
+			// bind to window onload event
+			window.addEventListener('load', onloadHandler, false);
+
+			function onloadHandler(){
+			
+				console.log("LOADING 3d");
+				
+				phoriaHandler.initialize("canvas","canvasParent");
+				regionHandler.initialize();
+
+				var pause = false;
+				var fnAnimate = function() {
+				  if (!pause){
+					 phoriaHandler.scene.modelView();
+					 phoriaHandler.renderer.render(phoriaHandler.scene);
+				  }
+				  requestAnimFrame(fnAnimate);
+				};
+
+				// key binding
+				document.addEventListener('keydown', function(e) {
+					switch (e.keyCode)
+					{
+					case 27: // ESC
+					pause = !pause;
+					break;
+					case 87: // W
+					phoriaHandler.camera.position.z-=10;
+					break;
+					case 83: // S
+					// move back along current heading
+					//fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
+					phoriaHandler.camera.position.z+=10;
+					break;	
+
+					case 65: // A
+					// strafe left from current heading
+					phoriaHandler.camera.position.x+=10;
+					break;
+					case 68: // D
+					// strafe right from current heading
+					phoriaHandler.camera.position.x-=10;
+					break;
+
+					}
+					
+					phoriaHandler.renderFrame();
+					
+				}, false);
+				   
+
+				gridHandler.initialize(regionHandler);
+				
+				// THIS IS filter
+				
+				$("#listSearchKey").keyup(function(event){
+					uiHandler.updateList();
+				});
+				
+				uiHandler.updateList();
+				
+				var htmlForSelection = 
+					Mustache.render(
+						$("#selectstartemplate").html(), 
+						{data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
+				$("#distanceASelected").html(htmlForSelection);	
+				$("#distanceBSelected").html(htmlForSelection);	
+			
+			}
+
+		</script>
+	
+		<div container style="max-width:inherit!important;">
+			
+			<svg height="30" width="100%">
+				<text x="0" y="20">NMS: The HUB Management System</text>
+			</svg>
+			
+			<div grid>
+				
+				<div column="4">
+					
+					<section class="alert-box">
+
+						<section  grid="no-collapse">
+							<div column class="gridbtn" onclick="uiHandler.showList();"><i class="icon-target"></i> Select system</div>
+							<div column class="gridbtn" onclick="uiHandler.showFind();"><i class="icon-search"></i> Locate system</div>
+							<div column class="gridbtn" onclick="uiHandler.showTrading();"><i class="icon-chart-line"></i> Trading</div>
+						</section>
+						
+						<div id="tableContainer">
+							<div id="listGridContainer">
+								<p>Input any search here to filter the list:</p>
+								<input type="text" id="listSearchKey">
+								<div id="listGridParent">
+								</div>
+							</div>
+							
+							<div id="findGridParent" style="display:none;">
+								<p>Input your current location here to locate your star.</p>
+								<p>Distance to the center:</p>
+								<input type="text" id="distanceCenter">
+								
+								<p >Distance to the first star:</p>
+								<div>
+									
+									<select id="distanceASelected">
+										<option value="" selected >None</option>
+									</select>
+								
+									<input type="text" id="distanceToA">
+								</div>
+								
+								<p>Distance to the second star:</p>
+								<div>
+									<select id="distanceBSelected">
+										<option value="" selected >None</option>
+									</select>
+									<input type="text" id="distanceToB">
+								</div>
+
+								<button onclick="regionHandler.calculateNewStar()">Calculate</button>
+							</div>
+							
+							<div id="tradingGridParent" style="display:none;">
+								<p>Locate stars with good buy / sell offers.</p>
+								<div id="tradeListGridParent">
+									<h3>Nothing to see here yet!</h3>
+								</div>
+							</div>
+						</div>
+					</section>
+					
+				</div>
+				<div column="8" id="canvasParent">
+					<canvas id="canvas" ></canvas>
+				</div>
+			</div>
+		</div>
+		
+		<script id="selectstartemplate" type="text/template">
+			{{#data}}
+				<option value="solarIndex">{{getHexSolarId}}-{{name}}</option>
+			{{/data}}
+		</script>
+		
+		<script id="tabletemplate" type="text/template">
+			<table id="datatable">
+				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
+				{{#data}}
+					<tr class="gridStarRow">
+						<td>{{getHexSolarId}}</td>
+						<td class="gridStarName" onclick="regionHandler.lookAt({{solarIndex}});">{{name}}</td>
+						<td><div class="gridStarColor" style="background-color:rgb({{starColor}});"></div></td>
+						<td>{{getRaceName}}</td>
+					</tr>
+				{{/data}}
+			</table>
+		</script>
+		
+	</body>
+</html>
