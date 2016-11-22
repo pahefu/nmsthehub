@@ -117,8 +117,8 @@ var phoriaHandler = {
 		
 		this.camera = this.scene.camera; // Adjust the camera
 		
-		console.log("ENABLE THIS FOR PRODUCTION");
-		//this.generateStarField(); // Generate background starfield
+		//console.log("ENABLE THIS FOR PRODUCTION");
+		this.generateStarField(); // Generate background starfield
 		
 	},
 
