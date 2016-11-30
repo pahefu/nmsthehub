@@ -225,7 +225,8 @@ var regionHandler = {
 		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
 		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
 		
-		this.addPseudoStar(0x211,"Drogradur NO425",0, "17f|79|74|-1","387.6|154.7|204.4|166592.9");
+		this.addPseudoStar(0x211,"Drogradur NO425",0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
+		//this.addPseudoStar(0x1234,"LAMEFOO",0, "-1|17f|79|74","166574.2|122.9|284.7|325.1");
 		
 		phoriaHandler.renderFrame();
 	},
@@ -260,6 +261,7 @@ var regionHandler = {
 		
 		if(pack1 == null || pack2 == null){
 			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Trilaterate failed");
+			console.log(pack1,pack2);
 			return;
 		}
 
