@@ -32,21 +32,20 @@ var Class = function(methods) {
 };
 
 var Star = Class({
-	initialize: function(solarIndex,name,x,y,z, starColor){
+	initialize: function(solarIndex,name,x,y,z, starColorIndex){
 		this.solarIndex = solarIndex;
 		this.name = name;
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.starColorIndex = starColor;
+		this.starColorIndex = starColorIndex;
 		this.mapObject = undefined;
 		this.metadata = {
 			race : 0
 			// Include metadata here
 		};
 	},
-	
-	starColor : function() { return colors[this.starColorIndex] },
+	getStarColor : function() { return colors[this.starColorIndex] },
 	getHexSolarId : function() { return toHex(this.solarIndex,4); },
 	getRaceName : function() { return races[this.metadata.race]; },
 	getPosArray : function(){ return [this.x, this.y, this.z]; },
@@ -179,7 +178,7 @@ var phoriaHandler = {
 			drawmode: "wireframe",
 			shademode: "plain",
 			linewidth:0.5,
-			color: star.starColor()
+			color: star.getStarColor()
 		  }
 		}).translateX(star.x).translateY(star.y).translateZ(star.z);
 	   
@@ -225,10 +224,88 @@ var regionHandler = {
 		console.log("REMOVE THIS FOR PRODUCTION");
 		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
 		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
-
+		
+		this.addPseudoStar(0x211,"Drogradur NO425",0, "17f|79|74|-1","387.6|154.7|204.4|166592.9");
 		
 		phoriaHandler.renderFrame();
 	},
+	
+	addPseudoStar : function (solarIndex,name,starColorIndex, blobids, blobdistances){
+		var ids = blobids.split("|");
+		var distances = blobdistances.replace(/,/g , ".").split("|");
+
+		var trilatePoints = [];
+		
+		for(var i = 0;i<ids.length;i++){
+			ids[i] = parseInt(ids[i],16);
+			distances[i] = Number(distances[i]); 
+			if(distances[i]<100000) { distances[i] /= 4.0; } // NMS error labeling
+			
+			for(var j = 0;j<this.stars.length;j++){
+				if(this.stars[j].solarIndex == ids[i]){
+					var tp = this.stars[j];
+					trilatePoints.push({x: tp.x, y:tp.y, z:tp.z, r: distances[i]});
+					break;
+				}
+			}
+		}
+		
+		if(trilatePoints.length != ids.length){
+			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Not All ids found");
+			return;
+		}
+				
+		var pack1 = trilaterate(trilatePoints[0], trilatePoints[1], trilatePoints[2]);
+		var pack2 = trilaterate(trilatePoints[0], trilatePoints[2], trilatePoints[3]);
+		
+		if(pack1 == null || pack2 == null){
+			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Trilaterate failed");
+			return;
+		}
+
+		var minDistance = 99999.9;
+		var minPoints = [undefined, undefined];
+		var localDistance = 0;	
+		
+		for(var i = 0;i < pack1.length;i++){
+			for(var j = 0;j<pack1.length;j++){
+				if(i==j){ continue;	}
+				localDistance = this.getDistance(pack1[i], pack1[j]);
+				if (localDistance<minDistance){
+					minDistance = localDistance;
+					minPoints[0] = pack1[i]; minPoints[1] = pack1[j];
+				}
+			}
+			for(var j = 0;j<pack2.length;j++){
+				localDistance = this.getDistance(pack1[i], pack2[j]);
+				if (localDistance<minDistance){
+					minDistance = localDistance;
+					minPoints[0] = pack1[i]; minPoints[1] = pack2[j];
+				}
+			}
+			
+		}
+
+		var middlePoint = { 
+			x: (minPoints[0].x+minPoints[1].x)/2 + 20811.32748949516,
+			y: (minPoints[0].y+minPoints[1].y)/2 + -16.15057093374628,
+			z: (minPoints[0].z+minPoints[1].z)/2 + -5.244964575966744
+		};
+		
+		this.addStar(new Star(solarIndex,name,middlePoint.x, middlePoint.y,middlePoint.z, 0));
+		
+	},
+	
+	getDistance: function(p1, p2){
+		
+		var dX = p2.x - p1.x;
+		var dY = p2.y - p1.y;
+		var dZ = p2.z - p1.z;
+	
+		var distance = Math.sqrt(dX*dX + dY*dY + dZ*dZ);
+		return distance;
+	},
+	
 	addStar : function(star){
 		
 		star.x-=this.regionCenter.x;
@@ -242,6 +319,7 @@ var regionHandler = {
 		this.mapObjects.push(mapObject);
 		this.stars.push(star);
 	},
+	
 	lookAt : function(solarIndex){
 		solarIndex = Number(solarIndex);
 		if (isNaN(solarIndex)){
@@ -261,7 +339,6 @@ var regionHandler = {
 		}
 		
 		phoriaHandler.renderFrame();
-		
 	}
 };
 
