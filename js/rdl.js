@@ -53,12 +53,16 @@ var Star = Class({
 });
 
 var phoriaHandler = {
+	cameraAngleH: 1.5708,
+	cameraAngleV: 1.5708,
+	selectedItem: undefined,
+	
 	initialize: function(domId, parentDomId){
 
 		var canvasParent = document.getElementById(parentDomId);
 		var canvas = document.getElementById(domId);
 		
-		canvas.width = 	canvasParent.getBoundingClientRect().width;
+		canvas.width = 	canvasParent.getBoundingClientRect().width *0.99;
 		canvas.height = document.documentElement.clientHeight;
 
 		var scene = new Phoria.Scene();
@@ -116,6 +120,15 @@ var phoriaHandler = {
 		
 		this.camera = this.scene.camera; // Adjust the camera
 		
+		
+		var mouse = Phoria.View.addMouseEvents(canvas, function() {
+		  var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
+		  console.log(cpv);
+		  //var intersects = Phoria.View.getIntersectedObjects(phoriaHandler.scene, cpv.clickPoint, cpv.clickVector);
+		  //console.log(intersects.length !== 0 ? intersects[0].entity.id : "[none]");
+	   });
+		
+		
 		//console.log("ENABLE THIS FOR PRODUCTION");
 		this.generateStarField(); // Generate background starfield
 		
@@ -126,6 +139,35 @@ var phoriaHandler = {
 		s.translate([-s.position[0],-s.position[1],-s.position[2]]);
 		s.translate(xyzArr);
 		this.selectBox.position = xyzArr;
+	},
+	
+	resetCameraAngle : function(){
+		this.cameraAngleH = 1.5708;
+		this.cameraAngleV = 1.5708;
+	},
+	
+	rotateCamXZ : function (left){
+		var variation = 0.0174533 * ((left) ? 1 : -1 );
+		var lx = this.camera.lookat.x 
+		var x = this.camera.position.x ;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.position.z;
+		var dist = Math.sqrt(Math.pow(lx-x, 2) + Math.pow(lz-z, 2) );
+		this.cameraAngleH -= variation;
+		this.camera.position.x = lx + Math.cos(this.cameraAngleH)*dist;
+		this.camera.position.z = lz + Math.sin(this.cameraAngleH)*dist;
+	},
+	
+	rotateCamYZ : function (up){
+		var variation = 0.0174533 * ((up) ? 1 : -1 );
+		var ly = this.camera.lookat.y 
+		var y = this.camera.position.y ;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.position.z;
+		var dist = Math.sqrt(Math.pow(ly-y, 2) + Math.pow(lz-z, 2) );
+		this.cameraAngleV -= variation;
+		this.camera.position.y = ly + Math.cos(this.cameraAngleV)*dist;
+		this.camera.position.z = lz + Math.sin(this.cameraAngleV)*dist;
 	},
 	
 	renderFrame: function(){
@@ -188,7 +230,11 @@ var phoriaHandler = {
 		  showPosition: false,
 	   });
 	   return cube;
-	}
+	},
+	
+	
+	
+	
 };
 
 var regionHandler = {
@@ -219,7 +265,7 @@ var regionHandler = {
 		phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
 		phoriaHandler.camera.position = {x: points[3].x, y:points[3].y, z:points[3].z+220};
 		phoriaHandler.moveSelectBox(points[3].getPosArray());
-
+		
 		
 		console.log("REMOVE THIS FOR PRODUCTION");
 		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
@@ -333,8 +379,9 @@ var regionHandler = {
 				var s = this.stars[i];
 				phoriaHandler.camera.lookat = {x: s.x, y:s.y, z:s.z};
 				phoriaHandler.camera.position = {x: s.x, y:s.y, z:s.z+220};
-				
+
 				phoriaHandler.moveSelectBox(s.getPosArray());
+				phoriaHandler.resetCameraAngle();
 				
 				break;
 			}
