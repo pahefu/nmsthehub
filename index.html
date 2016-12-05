@@ -57,24 +57,23 @@
 					switch (e.keyCode)
 					{
 					case 27: // ESC
-					pause = !pause;
+						pause = !pause;
 					break;
 					case 87: // W
-					phoriaHandler.camera.position.z-=10;
+					//phoriaHandler.camera.position.z-=10;
+						phoriaHandler.rotateCamYZ(true);
 					break;
 					case 83: // S
 					// move back along current heading
 					//fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
-					phoriaHandler.camera.position.z+=10;
+						phoriaHandler.rotateCamYZ(false);
 					break;	
 
 					case 65: // A
-					// strafe left from current heading
-					phoriaHandler.camera.position.x+=10;
+						phoriaHandler.rotateCamXZ(true);
 					break;
 					case 68: // D
-					// strafe right from current heading
-					phoriaHandler.camera.position.x-=10;
+						phoriaHandler.rotateCamXZ(false);
 					break;
 
 					}
@@ -106,14 +105,14 @@
 		</script>
 	
 		<div container style="max-width:inherit!important;">
-			
-			<svg height="30" width="100%">
-				<text x="0" y="20">NMS: The HUB Management System</text>
-			</svg>
-			
+
 			<div grid>
 				
-				<div column="4">
+				<div column="4" id="leftpanel">
+				
+					<svg height="30" width="100%">
+						<text x="0" y="20">NMS: The HUB Management System</text>
+					</svg>
 					
 					<section class="alert-box">
 
@@ -167,8 +166,10 @@
 					</section>
 					
 				</div>
-				<div column="8" id="canvasParent">
-					<canvas id="canvas" ></canvas>
+				<div column="8" id="rightpanel">
+					<div id="canvasParent">
+						<canvas id="canvas" ></canvas>
+					</div>
 				</div>
 			</div>
 		</div>
