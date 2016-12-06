@@ -146,6 +146,35 @@ var phoriaHandler = {
 		this.cameraAngleV = 1.5708;
 	},
 	
+	doUpDownCamera :  function(up){
+		this.camera.position.y+=(up) ? 10 : -10; 
+		this.camera.lookat.y+=(up) ? 10 : -10; 
+	},
+	
+	doZoom : function (forward){
+		
+		var lx = this.camera.lookat.x 
+		var x = this.camera.position.x ;
+		var ly = this.camera.lookat.y 
+		var y= this.camera.position.y;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.position.z;
+		
+		var step = (!forward) ? -1 : 1;
+		
+		var dx = lx - x; dx*=step;
+		var dy = ly - y; dy*=step;
+		var dz = lz - z; dz*=step;
+		
+		
+	
+		
+		this.camera.position.x += dx  /10;
+		this.camera.position.y += dy /10;
+		this.camera.position.z += dz /10;
+		
+	},
+	
 	rotateCamXZ : function (left){
 		var variation = 0.0174533 * ((left) ? 1 : -1 );
 		var lx = this.camera.lookat.x 
@@ -272,7 +301,9 @@ var regionHandler = {
 		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
 		
 		this.addPseudoStar(0x211,"Drogradur NO425",0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
-		//this.addPseudoStar(0x1234,"LAMEFOO",0, "-1|17f|79|74","166574.2|122.9|284.7|325.1");
+		
+		this.addPseudoStar(0x164,"Nihonmatsuba ",0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
+		//this.addPseudoStar(0x1234,"LAMEFOO",0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
 		
 		phoriaHandler.renderFrame();
 	},
@@ -395,6 +426,15 @@ var uiHandler = {
 	updateList : function (){
 		gridHandler.setFilterText($("#listSearchKey").val());
 		gridHandler.sortById();
+		gridHandler.resetPages();
+		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
+	},
+	listNextPage : function(){
+		gridHandler.setPage(+1);
+		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
+	},
+	listPrevPage : function(){
+		gridHandler.setPage(-1);
 		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
 	},
 	hideAll:function(){
