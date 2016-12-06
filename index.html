@@ -54,28 +54,47 @@
 
 				// key binding
 				document.addEventListener('keydown', function(e) {
-					switch (e.keyCode)
-					{
-					case 27: // ESC
-						pause = !pause;
-					break;
-					case 87: // W
-					//phoriaHandler.camera.position.z-=10;
-						phoriaHandler.rotateCamYZ(true);
-					break;
-					case 83: // S
-					// move back along current heading
-					//fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
-						phoriaHandler.rotateCamYZ(false);
-					break;	
+					switch (e.keyCode){
+						case 27: // ESC
+							pause = !pause;
+						break;
+						case 87: // W
+						//phoriaHandler.camera.position.z-=10;
+							phoriaHandler.rotateCamYZ(true);
+						break;
+						case 83: // S
+						// move back along current heading
+						//fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
+							phoriaHandler.rotateCamYZ(false);
+						break;	
 
-					case 65: // A
-						phoriaHandler.rotateCamXZ(true);
-					break;
-					case 68: // D
-						phoriaHandler.rotateCamXZ(false);
-					break;
+						case 65: // A
+							phoriaHandler.rotateCamXZ(true);
+						break;
+						
+						case 68: // D
+							phoriaHandler.rotateCamXZ(false);
+						break;
+						
+						case 81: // Q
+							phoriaHandler.doZoom(true);
+						break;
 
+						case 69: // E
+							phoriaHandler.doZoom(false);
+						break;
+						
+						case 38: // Arrow up
+							phoriaHandler.doUpDownCamera(true);
+						break;
+						
+						case 40: // Arrow down
+							phoriaHandler.doUpDownCamera(false);
+						break;
+						
+						default:
+							console.log(e.keyCode);
+						break;
 					}
 					
 					phoriaHandler.renderFrame();
@@ -95,10 +114,10 @@
 				
 				var htmlForSelection = 
 					Mustache.render(
-						$("#selectstartemplate").html(), 
+					$("#selectstartemplate").html(), 
 						{data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
-				$("#distanceASelected").html(htmlForSelection);	
-				$("#distanceBSelected").html(htmlForSelection);	
+					$("#distanceASelected").html(htmlForSelection);	
+					$("#distanceBSelected").html(htmlForSelection);	
 			
 			}
 
@@ -183,15 +202,19 @@
 		<script id="tabletemplate" type="text/template">
 			<table id="datatable">
 				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
-				{{#data}}
+				{{#currentData}}
 					<tr class="gridStarRow">
 						<td>{{getHexSolarId}}</td>
 						<td class="gridStarName" onclick="regionHandler.lookAt({{solarIndex}});">{{name}}</td>
 						<td><div class="gridStarColor" style="background-color:rgb({{getStarColor}});"></div></td>
 						<td>{{getRaceName}}</td>
 					</tr>
-				{{/data}}
+				{{/currentData}}
 			</table>
+			<div> Page {{humanPageIndex}} of {{maxPages}}   
+				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.listPrevPage();"> </i> 
+				<i class="icon-right-open pageright" title="next" onclick="uiHandler.listNextPage();"> </i> 
+			</div>
 		</script>
 		
 	</body>
