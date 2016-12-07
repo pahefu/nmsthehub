@@ -10,21 +10,19 @@
 		<link rel="stylesheet" href="./css/style.css">
 		<link rel="stylesheet" href="./css/hubfont.css">
 				
-		<script src="./js/numeric-1.2.6.min.js"></script>
-		<script src="./js/mds.js"></script>
 		<script src="./js/gl-matrix-min.js"></script>
 		<script src="./js/phoria-min.js"></script>
-		<script src="./js/dat.gui.min.js"></script>
 		<script src="./js/trilateration.js"></script>
 		
 		<script src="./js/zepto.min.js"></script>
 		<script src="./js/mustache.min.js"></script>
 		<script src="./js/rdl.js"></script>
-		
 		<script src="./js/hgrid.js"></script>
+		<script src="./js/metadata.js"></script>
 		
 		<title>NMS The HUB: Management System</title>
 	</head>
+	
 	<body>
 
 		<script type="text/javascript">
@@ -32,7 +30,6 @@
                        window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
                        function(c) {window.setTimeout(c, 250)};
 
-			
 			// bind to window onload event
 			window.addEventListener('load', onloadHandler, false);
 
@@ -42,6 +39,9 @@
 				
 				phoriaHandler.initialize("canvas","canvasParent");
 				regionHandler.initialize();
+				
+				loadMetaData();
+				
 
 				var pause = false;
 				var fnAnimate = function() {
