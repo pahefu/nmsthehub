@@ -5,7 +5,7 @@ var colors = [
 	[0,0,255], // BLUE_STAR
 ];
 
-var races = ['Gek','Korvax','Vykeen'];
+var races = ['Gek','Korvax','Vy\'keen'];
 
 function toHex(str, totalChars){
 	totalChars = (totalChars==undefined) ? 2 : totalChars;
@@ -104,8 +104,8 @@ var phoriaHandler = {
 		scene.graph.push(selectBox);
 		this.selectBox = selectBox;
 		
-		
-		var plane = Phoria.Util.generateTesselatedPlane(8,8,0,20);
+		// Plane to use as base only. Removing this on production
+		/*var plane = Phoria.Util.generateTesselatedPlane(8,8,0,20);
 		   scene.graph.push(Phoria.Entity.create({
 			  points: plane.points,
 			  edges: plane.edges,
@@ -116,14 +116,14 @@ var phoriaHandler = {
 				 linewidth: 0.5,
 				 objectsortmode: "back"
 			  }
-		}));
+		}));*/
 		
 		this.camera = this.scene.camera; // Adjust the camera
 		
 		
 		var mouse = Phoria.View.addMouseEvents(canvas, function() {
 		  var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
-		  console.log(cpv);
+		 // console.log(cpv);
 		  //var intersects = Phoria.View.getIntersectedObjects(phoriaHandler.scene, cpv.clickPoint, cpv.clickVector);
 		  //console.log(intersects.length !== 0 ? intersects[0].entity.id : "[none]");
 	   });
@@ -165,10 +165,7 @@ var phoriaHandler = {
 		var dx = lx - x; dx*=step;
 		var dy = ly - y; dy*=step;
 		var dz = lz - z; dz*=step;
-		
-		
-	
-		
+
 		this.camera.position.x += dx  /10;
 		this.camera.position.y += dy /10;
 		this.camera.position.z += dz /10;
@@ -300,10 +297,7 @@ var regionHandler = {
 		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
 		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
 		
-		this.addPseudoStar(0x211,"Drogradur NO425",0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
 		
-		this.addPseudoStar(0x164,"Nihonmatsuba ",0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
-		//this.addPseudoStar(0x1234,"LAMEFOO",0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
 		
 		phoriaHandler.renderFrame();
 	},
