@@ -1,6 +1,6 @@
 /* HUB GRID LIBRARY */
  
-var gridHandler = {
+var GridHandler = Class({
 	 
 	initialize : function (dataSource){
 		this.source = dataSource;
@@ -10,6 +10,15 @@ var gridHandler = {
 		this.filterText = "";
 		this.data = undefined;
 		this.currentData = undefined; 
+	},
+	
+	listNextPage : function(){
+		this.setPage(+1);
+		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
+	},
+	listPrevPage : function(){
+		this.setPage(-1);
+		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
 	},
 	
 	humanPageIndex(){
@@ -44,7 +53,7 @@ var gridHandler = {
 	},
 	 
 	applyFilter : function(){
-		this.data = this.source.stars.slice();
+		this.data = this.source.slice();
 		var result = [];
 		for(var i = 0;i<this.data.length;i++){
 			if(this.data[i].name.toLowerCase().includes(this.filterText)
@@ -69,8 +78,10 @@ var gridHandler = {
 		}
 	},
 	 
-	sortById : function (){
+	sortById : function (propertyName){
+		
 		this.applyFilter();
-		this.data = this.data.sort(this.dynamicSort("solarIndex"));	
+		this.data = this.data.sort(this.dynamicSort(propertyName));	
 	}	 
-}
+	
+});

@@ -1,12 +1,3 @@
-var colors = [ 
-	[0xf1,0x7f,0x42], // YELLOW_STAR
-	[255,0,0], // RED_STAR
-	[0,255,0], // GREEN_STAR
-	[0,0,255], // BLUE_STAR
-];
-
-var races = ['Gek','Korvax','Vy\'keen'];
-
 function toHex(str, totalChars){
 	totalChars = (totalChars==undefined) ? 2 : totalChars;
 	str = ('0'.repeat(totalChars)+Number(str).toString(16)).slice(-totalChars).toUpperCase();	
@@ -41,7 +32,7 @@ var Star = Class({
 		this.starColorIndex = starColorIndex;
 		this.mapObject = undefined;
 		this.metadata = {
-			race : 0
+			race : 0,
 			// Include metadata here
 		};
 	},
@@ -296,8 +287,7 @@ var regionHandler = {
 		console.log("REMOVE THIS FOR PRODUCTION");
 		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
 		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
-		
-		
+
 		
 		phoriaHandler.renderFrame();
 	},
@@ -417,24 +407,30 @@ var regionHandler = {
 };
 
 var uiHandler = {
-	updateList : function (){
-		gridHandler.setFilterText($("#listSearchKey").val());
-		gridHandler.sortById();
-		gridHandler.resetPages();
-		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
+	
+	initialize : function(systemGridFilterBox){
+		this.systemGrid = new GridHandler(regionHandler.stars);
+		this.materials = new GridHandler(materials.data);
+		
+		if (systemGridFilterBox!=null){
+			$(systemGridFilterBox).keyup(function(event){
+				uiHandler.updateSystemGrid();
+			});
+		}
+		
 	},
-	listNextPage : function(){
-		gridHandler.setPage(+1);
-		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
+	
+	updateSystemGrid : function (){
+		this.systemGrid.setFilterText($("#listSearchKey").val());
+		this.systemGrid.sortById("solarIndex");
+		this.systemGrid.resetPages();
+		$("#listGridParent").html(Mustache.render($("#systemGridTemplate").html(), this.systemGrid));	
 	},
-	listPrevPage : function(){
-		gridHandler.setPage(-1);
-		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), gridHandler));	
-	},
+	
 	hideAll:function(){
 		$("#listGridContainer").hide();
 		$("#findGridParent").hide();
-		$("#tradingGridParent").hide();
+		$("#materialsGridParent").hide();
 	},	
 	showList : function (){
 		this.hideAll();
@@ -444,9 +440,9 @@ var uiHandler = {
 		this.hideAll();
 		$("#findGridParent").show();
 	},
-	showTrading:function(){
+	showMaterials:function(){
 		this.hideAll();
-		$("#tradingGridParent").show();
+		$("#materialsGridParent").show();
 	}
 	
 };
