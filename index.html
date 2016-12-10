@@ -16,9 +16,9 @@
 		
 		<script src="./js/zepto.min.js"></script>
 		<script src="./js/mustache.min.js"></script>
+		<script src="./js/metadata.js"></script>
 		<script src="./js/rdl.js"></script>
 		<script src="./js/hgrid.js"></script>
-		<script src="./js/metadata.js"></script>
 		
 		<title>NMS The HUB: Management System</title>
 	</head>
@@ -35,14 +35,13 @@
 
 			function onloadHandler(){
 			
-				console.log("LOADING 3d");
-				
 				phoriaHandler.initialize("canvas","canvasParent");
 				regionHandler.initialize();
 				
+				uiHandler.initialize("#listSearchKey");	
 				loadMetaData();
-				
-
+				uiHandler.updateSystemGrid();
+			
 				var pause = false;
 				var fnAnimate = function() {
 				  if (!pause){
@@ -100,22 +99,12 @@
 					phoriaHandler.renderFrame();
 					
 				}, false);
-				   
 
-				gridHandler.initialize(regionHandler);
-				
 				// THIS IS filter
-				
-				$("#listSearchKey").keyup(function(event){
-					uiHandler.updateList();
-				});
-				
-				uiHandler.updateList();
-				
+
 				var htmlForSelection = 
 					Mustache.render(
-					$("#selectstartemplate").html(), 
-						{data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
+					$("#selectstartemplate").html(), 	{data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
 					$("#distanceASelected").html(htmlForSelection);	
 					$("#distanceBSelected").html(htmlForSelection);	
 			
@@ -138,7 +127,7 @@
 						<section  grid="no-collapse">
 							<div column class="gridbtn" onclick="uiHandler.showList();"><i class="icon-target"></i> Select system</div>
 							<div column class="gridbtn" onclick="uiHandler.showFind();"><i class="icon-search"></i> Locate system</div>
-							<div column class="gridbtn" onclick="uiHandler.showTrading();"><i class="icon-chart-line"></i> Trading</div>
+							<div column class="gridbtn" onclick="uiHandler.showMaterials();"><i class="icon-chart-line"></i> Materials</div>
 						</section>
 						
 						<div id="tableContainer">
@@ -175,9 +164,9 @@
 								<button onclick="regionHandler.calculateNewStar()">Calculate</button>
 							</div>
 							
-							<div id="tradingGridParent" style="display:none;">
-								<p>Locate stars with good buy / sell offers.</p>
-								<div id="tradeListGridParent">
+							<div id="materialsGridParent" style="display:none;">
+								<p>Locate where you can find materials</p>
+								<div id="materialsListGridParent">
 									<h3>Nothing to see here yet!</h3>
 								</div>
 							</div>
@@ -199,6 +188,25 @@
 			{{/data}}
 		</script>
 		
+		<script id="systemGridTemplate" type="text/template">
+			<table id="systemGridTable">
+				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
+				{{#currentData}}
+					<tr class="gridStarRow">
+						<td>{{getHexSolarId}}</td>
+						<td class="gridStarName" onclick="regionHandler.lookAt({{solarIndex}});">{{name}}</td>
+						<td><div class="gridStarColor" style="background-color:rgb({{getStarColor}});"></div></td>
+						<td>{{getRaceName}}</td>
+					</tr>
+				{{/currentData}}
+			</table>
+			<div> Page {{humanPageIndex}} of {{maxPages}}   
+				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
+				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
+			</div>
+		</script>
+		
+		
 		<script id="tabletemplate" type="text/template">
 			<table id="datatable">
 				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
@@ -212,10 +220,9 @@
 				{{/currentData}}
 			</table>
 			<div> Page {{humanPageIndex}} of {{maxPages}}   
-				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.listPrevPage();"> Prev</i> 
-				<i class="icon-right-open pageright" title="next" onclick="uiHandler.listNextPage();"> Next</i> 
+				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
+				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
 			</div>
 		</script>
-		
 	</body>
 </html>
