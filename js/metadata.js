@@ -52,8 +52,12 @@ var loadMetaData = function(){
 	regionHandler.addPseudoStar(0x16a,"Zoology Star",0, "-1|17f|79|74","166581.1|105.9|320.2|371.5");
 	regionHandler.addPseudoStar(0x1f7,"Aioiketiko",0, "-1|17f|79|74","166571.1|100.6|329.9|379.3");
 	
+	regionHandler.addPseudoStar(0x1dd,"Acquisition",0, "-1|17f|79|74","166572.2|108.4|310.5|358.5");
+	regionHandler.addPseudoStar(0xF1,"Beetle Star",0, "-1|17f|79|74","166598.2|169.3|431.8|486.1");
 	
 	
+	
+	regionHandler.addPseudoStar(0x1B8,"K.Kesey",0, "-1|17f|79|74","166624.9|375.2|162.2|237.8");
 	
 	
 	materials.addSource(0,false,0, false,"Bright flowers in any planet","");

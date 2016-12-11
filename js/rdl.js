@@ -113,7 +113,7 @@ var phoriaHandler = {
 		
 		
 		var mouse = Phoria.View.addMouseEvents(canvas, function() {
-		  var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
+		var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
 		 // console.log(cpv);
 		  //var intersects = Phoria.View.getIntersectedObjects(phoriaHandler.scene, cpv.clickPoint, cpv.clickVector);
 		  //console.log(intersects.length !== 0 ? intersects[0].entity.id : "[none]");
@@ -323,7 +323,16 @@ var regionHandler = {
 		if(pack1 == null || pack2 == null){
 			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Trilaterate failed");
 			console.log(pack1,pack2);
+			
+			var pack = (pack1!=null) ? pack1 : pack2;
+			
+			this.addStar(new Star(solarIndex,name+"test1",pack[0].x+20811.32748949516, pack[0].y-16.15057093374628,pack[0].z-5.244964575966744, 0));
+			this.addStar(new Star(solarIndex,name+"test2",pack[1].x+20811.32748949516, pack[1].y-16.15057093374628,pack[1].z-5.244964575966744, 0));
+			
 			return;
+			
+			
+			
 		}
 
 		var minDistance = 99999.9;
