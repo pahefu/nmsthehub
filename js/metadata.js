@@ -54,12 +54,11 @@ var loadMetaData = function(){
 	
 	regionHandler.addPseudoStar(0x1dd,"Acquisition",0, "-1|17f|79|74","166572.2|108.4|310.5|358.5");
 	regionHandler.addPseudoStar(0xF1,"Beetle Star",0, "-1|17f|79|74","166598.2|169.3|431.8|486.1");
-	
-	
-	
+
 	regionHandler.addPseudoStar(0x1B8,"K.Kesey",0, "-1|17f|79|74","166624.9|375.2|162.2|237.8");
-	
-	regionHandler.addPseudoStar(0x15d,"Top of the tree",0, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
+
+	regionHandler.addPseudoStarTest(0x15d,"Top of the tree",0, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
+	regionHandler.addPseudoStarTest(0xABCD,"Lamefoo",0, "-1|17f|79|74|fe","166574.2|122.9|284.7|325.1|60.3");
 	
 	
 	materials.addSource(0,false,0, false,"Bright flowers in any planet","");

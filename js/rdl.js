@@ -292,7 +292,30 @@ var regionHandler = {
 		phoriaHandler.renderFrame();
 	},
 	
+	getStarByIndex: function(solarIndex){
+		for(var j = 0;j<this.stars.length;j++){
+			if(this.stars[j].solarIndex == solarIndex){			
+				return this.stars[j];
+			}
+		}
+		return null;
+	},
+	
+	getDistance: function(p1, p2){
+		
+		var dX = p2.x - p1.x;
+		var dY = p2.y - p1.y;
+		var dZ = p2.z - p1.z;
+	
+		var distance = Math.sqrt(dX*dX + dY*dY + dZ*dZ);
+		return distance;
+	},
+	
 	addPseudoStar : function (solarIndex,name,starColorIndex, blobids, blobdistances){
+		
+		this.addPseudoStarTest(solarIndex,name,starColorIndex, blobids, blobdistances);
+		return;
+		
 		var ids = blobids.split("|");
 		var distances = blobdistances.replace(/,/g , ".").split("|");
 
@@ -330,9 +353,7 @@ var regionHandler = {
 			this.addStar(new Star(solarIndex,name+"test2",pack[1].x+20811.32748949516, pack[1].y-16.15057093374628,pack[1].z-5.244964575966744, 0));
 			
 			return;
-			
-			
-			
+
 		}
 
 		var minDistance = 99999.9;
@@ -368,15 +389,74 @@ var regionHandler = {
 		
 	},
 	
-	getDistance: function(p1, p2){
-		
-		var dX = p2.x - p1.x;
-		var dY = p2.y - p1.y;
-		var dZ = p2.z - p1.z;
 	
-		var distance = Math.sqrt(dX*dX + dY*dY + dZ*dZ);
-		return distance;
+	addPseudoStarTest : function (solarIndex,name,starColorIndex, blobids, blobdistances){
+		var ids = blobids.split("|");
+		var distances = blobdistances.replace(/,/g , ".").split("|");
+
+		var trilatePoints = [];
+		
+		for(var i = 0;i<ids.length;i++){
+			ids[i] = parseInt(ids[i],16);
+			distances[i] = Number(distances[i]); 
+			if(distances[i]<100000) { distances[i] /= 4.0; } // NMS error labeling
+			
+			for(var j = 0;j<this.stars.length;j++){
+				if(this.stars[j].solarIndex == ids[i]){
+					var tp = this.stars[j];
+					trilatePoints.push({x: tp.x, y:tp.y, z:tp.z, r: distances[i]});
+					break;
+				}
+			}
+		}
+		
+		if(trilatePoints.length != ids.length){
+			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Not All ids found");
+			return;
+		}
+				
+		var pack1 = trilaterate(trilatePoints[0], trilatePoints[1], trilatePoints[2]);
+		var pack2 = trilaterate(trilatePoints[0], trilatePoints[2], trilatePoints[3]);	
+		var pack3 = trilaterate(trilatePoints[1], trilatePoints[2], trilatePoints[3]);
+		var pack4 = trilaterate(trilatePoints[0], trilatePoints[1], trilatePoints[3]);
+		
+		var results = [];
+
+		if(pack1!=null){ pack1.forEach(function(a){ results.push(a) });	}
+		if(pack2!=null){ pack2.forEach(function(a){ results.push(a) });	}
+		if(pack3!=null){ pack3.forEach(function(a){ results.push(a) });	}
+		if(pack4!=null){ pack4.forEach(function(a){ results.push(a) });	}
+
+		results.forEach(function(r){
+			r.error1 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[0])) - distances[0]);
+			r.error2 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[1]))*4.0 - distances[1]*4.0);
+			r.error3 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[2]))*4.0 - distances[2]*4.0);
+			r.error4 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[3]))*4.0 - distances[3]*4.0);		
+			r.errormean = (r.error1+r.error2+r.error3+r.error4)/4.0;			
+		});
+		
+		results.sort(function(a,b){
+			if(a.errormean <b.errormean){
+				return -1;
+			}
+			return 1;
+		});
+
+		var i = 0;
+		results.forEach(function(r){
+			if(i==0){
+				regionHandler.addStar(new Star(solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, (r==results[0])?1 : 0));
+			}
+			
+			i++;
+		});
+		
+		
+		return;
+
 	},
+	
+	
 	
 	addStar : function(star){
 		
