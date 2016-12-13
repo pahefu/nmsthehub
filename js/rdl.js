@@ -498,8 +498,10 @@ var regionHandler = {
 var uiHandler = {
 	
 	initialize : function(systemGridFilterBox){
-		this.systemGrid = new GridHandler(regionHandler.stars);
-		this.materials = new GridHandler(materials.data);
+		this.systemGrid = new GridHandler(regionHandler.stars, "#listGridParent", "#systemGridTemplate");
+		this.materialsGrid = new GridHandler(materials.data);
+		
+		$("#materialbuttonsgrid").html(Mustache.render($("#materialbuttonstemplate").html(), materials));
 		
 		if (systemGridFilterBox!=null){
 			$(systemGridFilterBox).keyup(function(event){
@@ -513,7 +515,7 @@ var uiHandler = {
 		this.systemGrid.setFilterText($("#listSearchKey").val());
 		this.systemGrid.sortById("solarIndex");
 		this.systemGrid.resetPages();
-		$("#listGridParent").html(Mustache.render($("#systemGridTemplate").html(), this.systemGrid));	
+		this.systemGrid.updateView();
 	},
 	
 	hideAll:function(){

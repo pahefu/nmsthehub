@@ -101,10 +101,9 @@
 				}, false);
 
 				// THIS IS filter
-
 				var htmlForSelection = 
 					Mustache.render(
-					$("#selectstartemplate").html(), 	{data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
+					$("#selectstartemplate").html(), {data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
 					$("#distanceASelected").html(htmlForSelection);	
 					$("#distanceBSelected").html(htmlForSelection);	
 			
@@ -118,58 +117,111 @@
 				
 				<div column="4" id="leftpanel">
 				
-					<svg height="30" width="100%">
-						<text x="0" y="20">NMS: The HUB Management System</text>
-					</svg>
+					<div id="brand">NMS The Hub Management system  <span class="tag-box -success">v.0.1</span></div>
 					
-					<section class="alert-box">
+					<section id="mainsectionblock" class="alert-box">
 
-						<section  grid="no-collapse">
-							<div column class="gridbtn" onclick="uiHandler.showList();"><i class="icon-target"></i> Select system</div>
-							<div column class="gridbtn" onclick="uiHandler.showFind();"><i class="icon-search"></i> Locate system</div>
-							<div column class="gridbtn" onclick="uiHandler.showMaterials();"><i class="icon-chart-line"></i> Materials</div>
+						<section grid="no-collapse">
+							<div column  onclick="uiHandler.showList();">
+								<button class="sectionbtn -success"><i class="icon-target"></i> System selection</button>
+							</div>
+							<div column  onclick="uiHandler.showMaterials();">
+								<button class="sectionbtn -success"><i class="icon-chart-line"></i> Materials list</button>
+							</div>
+							<div column  onclick="uiHandler.showFind();">
+								<button class="sectionbtn -success"><i class="icon-search"></i> System sharing</button>
+							</div>
+							
 						</section>
 						
 						<div id="tableContainer">
 							<div id="listGridContainer">
-								<p>Input any search here to filter the list:</p>
+								<div class="paneltitle">System sharing</div>
+								
+								<div>Click on a system name to see it or type below to filter the list in real time</div>
 								<input type="text" id="listSearchKey">
 								<div id="listGridParent">
 								</div>
 							</div>
 							
-							<div id="findGridParent" style="display:none;">
-								<p>Input your current location here to locate your star.</p>
-								<p>Distance to the center:</p>
-								<input type="text" id="distanceCenter">
-								
-								<p >Distance to the first star:</p>
-								<div>
-									
-									<select id="distanceASelected">
-										<option value="" selected >None</option>
-									</select>
-								
-									<input type="text" id="distanceToA">
-								</div>
-								
-								<p>Distance to the second star:</p>
-								<div>
-									<select id="distanceBSelected">
-										<option value="" selected >None</option>
-									</select>
-									<input type="text" id="distanceToB">
-								</div>
-
-								<button onclick="regionHandler.calculateNewStar()">Calculate</button>
-							</div>
-							
 							<div id="materialsGridParent" style="display:none;">
-								<p>Locate where you can find materials</p>
+								<div class="paneltitle">Materials list</div>
+								<div>click on a material button to check where you can find it in the hub</div>
+
+								<div id="materialbuttonsgrid"><!--Buttons Here--></div>
+
 								<div id="materialsListGridParent">
 									<h3>Nothing to see here yet!</h3>
 								</div>
 							</div>
+							
+							<div id="findGridParent" style="display:none;">
+							
+								<div class="paneltitle">System sharing</div>
+								<div>Input your system data to share to the community &amp; creator ;)</div>
+								
+								<form id="shareform">
+								
+									<label>Name of your system:</label>
+									<input type="text" id="nameshare">
+								
+									<div grid>
+										<div column>
+											<label>What is the race on your system:</label>
+											<select id="raceshare">
+												<option value="0" selected>Gek</option>
+												<option value="1">Korvax</option>
+												<option value="2">Vy'keen</option>
+											</select>
+										</div>
+										
+										<div column>
+											<label>Distance to the center:</label>
+											<input type="text" id="distanceCenter">
+										</div>
+									</div>
+
+									<label>Distance to known stars (input 3):</label>
+									
+									<table id="distancessharedtable">
+										<tr><th>Star index</th><th>Distance</th></tr>
+										<tr>
+											<td>
+												<select id="starindexsharedA">
+													<option value="" selected >None</option>
+												</select>
+											</td>
+											<td>
+												<input type="text" id="stardistancesharedA">
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<select id="starindexsharedB">
+													<option value="" selected >None</option>
+												</select>
+											</td>
+											<td>
+												<input type="text" id="stardistancesharedB">
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<select id="starindexsharedC">
+													<option value="" selected >None</option>
+												</select>
+											</td>
+											<td>
+												<input type="text" id="stardistancesharedC">
+											</td>
+										</tr>
+									</table>
+								</form>
+
+								<button onclick="regionHandler.calculateNewStar()">Calculate</button>
+							</div>
+							
+							
 						</div>
 					</section>
 					
@@ -200,10 +252,17 @@
 					</tr>
 				{{/currentData}}
 			</table>
+			<hr/>
 			<div> Page {{humanPageIndex}} of {{maxPages}}   
 				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
 				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
 			</div>
+		</script>
+		
+		<script id="materialbuttonstemplate" type="text/template">
+			{{#data}}
+				<div column="6" class="materialbuttondiv"><button class="materialbutton">{{name}}</button></div>
+			{{/data}}
 		</script>
 		
 		
@@ -219,6 +278,7 @@
 					</tr>
 				{{/currentData}}
 			</table>
+			<hr/>
 			<div> Page {{humanPageIndex}} of {{maxPages}}   
 				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
 				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 

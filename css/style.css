@@ -12,31 +12,63 @@ body{
 	font-family: 'HubFontText';
 }
 
-#welcomeby{
-	
+#brand{
+	font-size: 1.4em;
 }
 
-
-
-#tableContainer{
-	margin-top:5px;
+#mainsectionblock{
+	margin-top:0.5em !important;
 }
 
-#datatable{
-	background-color: #333333;
+.paneltitle{
+	font-size: 1.25em;
+    border-bottom: 1px solid #cecece;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+#systemGridTable{
+	width:100%;
+	text-align:center;
+	margin-top:15px;
+}
+
+#listSearchKey{
+	border:none;
+	border-bottom:1px solid green;
+	min-height:1.75em;
+}
+
+#shareform{
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	border: solid 1px #dedede;
+	padding: 1em;
+}
+
+#distancessharedtable{
+	margin-top:0.5em;
 	width:100%;
 	text-align:center;
 }
 
-.gridbtn{
-	border: 1px solid #cecece;
-	text-align:center;
-	margin:5px;
-	cursor:pointer;
+.materialbuttondiv{
+	width:32%;
+	display:inline-table;
 }
 
-.gridbtn:hover{
-	background-color: #DCDCDC;
+.materialbutton{
+	color: #656666;
+    background-color: #e2e4e4;
+}
+
+.sectionbtn{
+	white-space: normal !important;
+	line-height:1.75em;
+	padding:0 0.25em 0 0.25em !important;
+	text-align:center;
+	min-height:46px;
+	width:99%;
 }
 
 .gridStarRow:hover{

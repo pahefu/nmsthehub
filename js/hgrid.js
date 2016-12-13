@@ -2,7 +2,7 @@
  
 var GridHandler = Class({
 	 
-	initialize : function (dataSource){
+	initialize : function (dataSource, domDestination, domTemplateName){
 		this.source = dataSource;
 		this.maxPerPage = 5;
 		this.maxPages = 1;
@@ -10,15 +10,24 @@ var GridHandler = Class({
 		this.filterText = "";
 		this.data = undefined;
 		this.currentData = undefined; 
+		this.domDestination = domDestination;
+		this.domTemplateName = domTemplateName;
 	},
+	
+	updateView : function(){
+		$(this.domDestination).html(Mustache.render($(this.domTemplateName).html(), this));
+	}
+	,
 	
 	listNextPage : function(){
 		this.setPage(+1);
-		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
+		this.updateView();
+		//$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
 	},
 	listPrevPage : function(){
 		this.setPage(-1);
-		$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
+		this.updateView();
+		//$("#listGridParent").html(Mustache.render($("#tabletemplate").html(), this));	
 	},
 	
 	humanPageIndex(){
