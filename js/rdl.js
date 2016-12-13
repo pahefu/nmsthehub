@@ -499,7 +499,7 @@ var uiHandler = {
 	
 	initialize : function(systemGridFilterBox){
 		this.systemGrid = new GridHandler(regionHandler.stars, "#listGridParent", "#systemGridTemplate");
-		this.materialsGrid = new GridHandler(materials.data);
+		this.materialsGrid = new GridHandler(undefined,"#materialGridParent","#materialsystemstemplate");
 		
 		$("#materialbuttonsgrid").html(Mustache.render($("#materialbuttonstemplate").html(), materials));
 		
@@ -509,6 +509,18 @@ var uiHandler = {
 			});
 		}
 		
+	},
+	
+	updateMaterialSystemsGrid: function(materialIndex){
+		
+		var material = materials.getMaterialByIndex(materialIndex);
+		
+		$("#materialDescriptionParent").html(Mustache.render($("#materialdescriptiontemplate").html(), material));
+		$("#materialGridParent").show();		
+		this.materialsGrid.updateSource(material.sources);
+		this.materialsGrid.sortById("solarIndex",false);
+		this.materialsGrid.resetPages();
+		this.materialsGrid.updateView();
 	},
 	
 	updateSystemGrid : function (){

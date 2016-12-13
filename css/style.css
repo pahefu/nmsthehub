@@ -20,6 +20,11 @@ body{
 	margin-top:0.5em !important;
 }
 
+table{
+	text-align:center;
+	width:100%;
+}
+
 .paneltitle{
 	font-size: 1.25em;
     border-bottom: 1px solid #cecece;
@@ -27,10 +32,13 @@ body{
     margin-bottom: 10px;
 }
 
-#systemGridTable{
-	width:100%;
+.centered{
 	text-align:center;
+}
+
+#systemGridTable{
 	margin-top:15px;
+	border:1px solid #dadada;
 }
 
 #listSearchKey{
@@ -48,18 +56,37 @@ body{
 
 #distancessharedtable{
 	margin-top:0.5em;
-	width:100%;
+}
+
+#materialbuttonsgrid{
 	text-align:center;
 }
 
+#materialdescriptiontable{
+	border:1px solid #dadada;
+	margin-top:5px;
+}
+
+#materialSourcesGridTable{
+	margin-top:10px;
+	border:1px solid #dadada;
+}
+
 .materialbuttondiv{
-	width:32%;
+	width:30%;
+	max-width:30%;
 	display:inline-table;
+	padding:2px !important;
+	text-align:center;
 }
 
 .materialbutton{
 	color: #656666;
     background-color: #e2e4e4;
+	margin:2px;
+	padding:0px;
+	white-space:wrap;
+	width:100%;
 }
 
 .sectionbtn{

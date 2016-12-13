@@ -135,23 +135,31 @@
 						</section>
 						
 						<div id="tableContainer">
-							<div id="listGridContainer">
-								<div class="paneltitle">System sharing</div>
+							<div id="listGridContainer" style="display:none;">
+								<div class="paneltitle" >System selection</div>
 								
 								<div>Click on a system name to see it or type below to filter the list in real time</div>
 								<input type="text" id="listSearchKey">
-								<div id="listGridParent">
-								</div>
+								<div id="listGridParent"><!--Table here--></div>
 							</div>
 							
-							<div id="materialsGridParent" style="display:none;">
+							<div id="materialsGridParent">
 								<div class="paneltitle">Materials list</div>
 								<div>click on a material button to check where you can find it in the hub</div>
 
 								<div id="materialbuttonsgrid"><!--Buttons Here--></div>
 
-								<div id="materialsListGridParent">
-									<h3>Nothing to see here yet!</h3>
+								<div>
+									<div class="paneltitle">Material information</div>
+									<div id="materialDescriptionParent">
+										Pick one material to see where to get it.
+									</div>
+									
+									<div class="paneltitle">Associated systems</div>
+									
+									<div id="materialGridParent" style="display:none;">
+										
+									</div>
 								</div>
 							</div>
 							
@@ -161,13 +169,25 @@
 								<div>Input your system data to share to the community &amp; creator ;)</div>
 								
 								<form id="shareform">
-								
-									<label>Name of your system:</label>
-									<input type="text" id="nameshare">
+									<div grid>
+										<div column>
+											<label>System color:</label>
+											<select id="raceshare">
+												<option value="0" selected>Yellow</option>
+												<option value="1">Red</option>
+												<option value="2">Green</option>
+												<option value="3">Blue</option>
+											</select>
+										</div>
+										<div column>
+											<label>Name of the system:</label>
+											<input type="text" id="nameshare">
+										</div>
+									</div>	
 								
 									<div grid>
 										<div column>
-											<label>What is the race on your system:</label>
+											<label>Race owning the system:</label>
 											<select id="raceshare">
 												<option value="0" selected>Gek</option>
 												<option value="1">Korvax</option>
@@ -218,7 +238,7 @@
 									</table>
 								</form>
 
-								<button onclick="regionHandler.calculateNewStar()">Calculate</button>
+								<button onclick="regionHandler.calculateNewStar()">Calculate to share</button>
 							</div>
 							
 							
@@ -241,7 +261,7 @@
 		</script>
 		
 		<script id="systemGridTemplate" type="text/template">
-			<table id="systemGridTable">
+			<table id="systemGridTable" border="1">
 				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
 				{{#currentData}}
 					<tr class="gridStarRow">
@@ -261,28 +281,41 @@
 		
 		<script id="materialbuttonstemplate" type="text/template">
 			{{#data}}
-				<div column="6" class="materialbuttondiv"><button class="materialbutton">{{name}}</button></div>
+				<div column="6" class="materialbuttondiv"><button class="materialbutton" onclick="uiHandler.updateMaterialSystemsGrid({{id}});">{{name}}</button></div>
 			{{/data}}
 		</script>
 		
-		
-		<script id="tabletemplate" type="text/template">
-			<table id="datatable">
-				<tr><th>ID</th><th>Name</th><th>Color</th><th>Race</th></tr>
-				{{#currentData}}
-					<tr class="gridStarRow">
-						<td>{{getHexSolarId}}</td>
-						<td class="gridStarName" onclick="regionHandler.lookAt({{solarIndex}});">{{name}}</td>
-						<td><div class="gridStarColor" style="background-color:rgb({{getStarColor}});"></div></td>
-						<td>{{getRaceName}}</td>
-					</tr>
-				{{/currentData}}
+		<script id="materialdescriptiontemplate" type="text/template">
+			<table id="materialdescriptiontable" border="1">
+				<tr><th>Name</th><th>Requires tool</th><th>Available always</th><th>Notes</th></tr>
+				<tr><td>{{name}}</td><td>{{tool}}</td><td>{{#allPlanets}}Yes{{/allPlanets}}{{^allPlanets}}No{{/allPlanets}}</td><td>{{notes}}</td></tr>
 			</table>
-			<hr/>
-			<div> Page {{humanPageIndex}} of {{maxPages}}   
-				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
-				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
-			</div>
+		</script>
+
+		<script id="materialsystemstemplate" type="text/template">
+			
+			{{#dataAvailable}}
+				<table id="materialSourcesGridTable" border="1">
+					<tr><th>ID</th><th>System Name</th><th>Location</th><th>Notes</th></tr>
+					{{#currentData}}
+						<tr class="gridStarRow">
+							<td>{{solarIndexHex}}</td>
+							<td class="gridStarName" {{#knownStar}} onclick="regionHandler.lookAt({{solarIndex}});"{{/knownStar}} >{{name}}</td>
+							<td>{{#inStation}}Yes{{/inStation}}{{^inStation}}In planets{{/inStation}}</td>
+							<td>{{notes}}</td>
+						</tr>
+					{{/currentData}}
+				</table>
+				<hr/>
+				<div> Page {{humanPageIndex}} of {{maxPages}}   
+					<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
+					<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
+				</div>
+			{{/dataAvailable}}
+			{{^dataAvailable}}
+				
+				<div class="centered"><strong>No associated systems known</strong></div>
+			{{/dataAvailable}}
 		</script>
 	</body>
 </html>

@@ -10,36 +10,54 @@ var races = ['Gek','Korvax','Vy\'keen'];
 var materials = {
 	
 	data : [
-		{ name: "Antrium", sources:[] },
-		{ name: "Candensium",sources:[] },
-		{ name: "Coprite",sources:[] },
-		{ name: "Coryzagen",sources:[] },
-		{ name: "Cymatygen",sources:[] },
-		{ name: "Fervidium",sources:[] },
-		{ name: "Mordite",sources:[] },
-		{ name: "Pugneum",sources:[] },
-		{ name: "Rubeum",sources:[] },
-		{ name: "Spadonium",sources:[] },
-		{ name: "Rigogen",sources:[] },
-		{ name: "Temerium",sources:[] },
-		{ name: "Tropheum",sources:[] },
-		{ name: "Viridium",sources:[] },
-		{ name: "Korvax Convergence Cube",sources:[] },
-		{ name: "Sac Venom",sources:[] },
-		{ name: "Vy'keen dagger",sources:[] }
+		{ name: "Antrium", id:0, tool:"None", allPlanets: true, notes:"Bright flowers in any planet", sources:[] },
+		{ name: "Candensium", id:1,tool:"None", allPlanets: false, notes:"",sources:[] },
+		{ name: "Coprite",id:2,tool:"None",allPlanets: true, notes:"Feed animals, grab the poo",sources:[] },
+		{ name: "Coryzagen",id:3,tool:"HazmatGloves",allPlanets: false, notes:"",sources:[] },
+		{ name: "Cymatygen",id:4,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Fervidium",id:5,tool:"HazmatGloves",allPlanets: false, notes:"",sources:[] },
+		{ name: "Mordite",id:6,tool:"None",allPlanets: true, notes:"Kill animals",sources:[] },
+		{ name: "Pugneum",id:7,tool:"None",allPlanets: true, notes:"Kill sentinels",sources:[] },
+		{ name: "Rubeum",id:8,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Spadonium",id:9,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Rigogen",id:10,tool:"HazmatGloves",allPlanets: false, notes:"",sources:[] },
+		{ name: "Temerium",id:11,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Tropheum",id:12,tool:"None",allPlanets: true, notes:"Destroy pirate ships",sources:[] },
+		{ name: "Viridium",id:13,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "K. Converg. Cube",id:14,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Sac Venom",id:15,tool:"None",allPlanets: false, notes:"",sources:[] },
+		{ name: "Vy'keen dagger",id:16,tool:"None",allPlanets: false, notes:"",sources:[] }
 	],
-	addSource : function(materialIndex,isStar, index, inStation,text, requiredTool){
-		
-		this.data[materialIndex].sources.push({
-			isStar : isStar,
-			index: index,
-			text: text,
-			requiredTool: requiredTool,
-			inStation: inStation
-		});
+	
+	getMaterialByIndex : function(materialIndex){
+		var result = null;
+		for(var i = 0;i<this.data.length;i++){
+			if(this.data[i].id == materialIndex){
+				return this.data[i];
+			}
+		}
+		return result;
+	},
+	
+	addSource : function(materialIndex, solarIndex, inStation,notes){
+		for(var i = 0;i<this.data.length;i++){
+			if(this.data[i].id == materialIndex){
+				var system = regionHandler.getStarByIndex(solarIndex);
+				var isValidStar = (system!=null);
+				var localName = (system!=null) ? system.name : ("Unknown");
+								
+				this.data[i].sources.push({
+					solarIndexHex: toHex(solarIndex,4),
+					solarIndex: solarIndex,
+					knownStar: isValidStar,
+					name : localName,
+					notes: notes,
+					inStation: inStation
+				});	
+			}
+		}
 	}
 }
-
 
 var loadMetaData = function(){
 	
@@ -60,31 +78,19 @@ var loadMetaData = function(){
 	regionHandler.addPseudoStarTest(0x15d,"Top of the tree",0, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
 	regionHandler.addPseudoStarTest(0xABCD,"Lamefoo",0, "-1|17f|79|74|fe","166574.2|122.9|284.7|325.1|60.3");
 	
+	/* Materials metadata */
 	
-	materials.addSource(0,false,0, false,"Bright flowers in any planet","");
-	materials.addSource(1,true, 0x12b, false,"","");
-	materials.addSource(2,false,0, false,"Feed animals, grab the poo","");
-	//materials.addSource(3,true,0, false,"","HazmatGlobes");
-	//materials.addSource(4,true,0, false,"","");
-	materials.addSource(5,true,0x12b, false,"","Hazmat Gloves");
-	materials.addSource(6,false,0, false,"Kill animals","");
-	materials.addSource(7,false,0, false,"Kill sentinels","");
-	
-	materials.addSource(8,true,0x184, false,"","");
-	
-	materials.addSource(9,true,0x150, false,"","");
-	materials.addSource(9,true,0x203, false,"","");
-	
-	materials.addSource(10,true,0xdd, false,"","Hazmat Gloves");
-	
-	materials.addSource(11,false,0, false,"Destroy pirate ships","");
-	materials.addSource(12,true,0x12b, false,"","");
-	
-	materials.addSource(13,true,0x163, true,"Merchants","");
-	materials.addSource(14,true,0x203,false,"","");
-	materials.addSource(14,true,0x11c,true,"Merchants","");
-	
-	materials.addSource(15,true,0xdd,true,"Merchants","");
+	materials.addSource(1,0x12b, false,"");
+	materials.addSource(5,0x12b, false,"");
+	materials.addSource(8,0x184, false,"");
+	materials.addSource(9,0x150, false,"");
+	materials.addSource(9,0x203, false,"");	
+	materials.addSource(10,0xdd, false,"");
+	materials.addSource(12,0x12b, false,"");
+	materials.addSource(13,0x163, true,"Buy at Merchants");
+	materials.addSource(14,0x203,false,"");
+	materials.addSource(15,0x11c,true,"Buy at Merchants");
+	materials.addSource(16,0xdd,true,"Buy at Merchants");
 	
 	phoriaHandler.renderFrame();
 	

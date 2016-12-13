@@ -13,11 +13,18 @@ var GridHandler = Class({
 		this.domDestination = domDestination;
 		this.domTemplateName = domTemplateName;
 	},
+
+	dataAvailable : function(){
+		return (this.source.length!=0);
+	},
+	
+	updateSource: function(dataSource){
+		this.source = dataSource;	
+	},
 	
 	updateView : function(){
 		$(this.domDestination).html(Mustache.render($(this.domTemplateName).html(), this));
-	}
-	,
+	},
 	
 	listNextPage : function(){
 		this.setPage(+1);
@@ -67,7 +74,7 @@ var GridHandler = Class({
 		for(var i = 0;i<this.data.length;i++){
 			if(this.data[i].name.toLowerCase().includes(this.filterText)
 				||
-			this.data[i].getHexSolarId().toLowerCase().includes(this.filterText) 	){
+			this.data[i].getHexSolarId().toLowerCase().includes(this.filterText)){
 				result.push(this.data[i]);
 			}
 		}
@@ -87,9 +94,12 @@ var GridHandler = Class({
 		}
 	},
 	 
-	sortById : function (propertyName){
-		
-		this.applyFilter();
+	sortById : function (propertyName, applyFilterFlag = true){
+		if(applyFilterFlag){ // Require filtered data
+			this.applyFilter();
+		}else{ // Raw data
+			this.data = this.source.slice();
+		}
 		this.data = this.data.sort(this.dynamicSort(propertyName));	
 	}	 
 	
