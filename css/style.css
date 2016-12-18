@@ -13,7 +13,7 @@ body{
 }
 
 #brand{
-	font-size: 1.4em;
+	
 }
 
 #mainsectionblock{
@@ -42,9 +42,6 @@ table{
 }
 
 #listSearchKey{
-	border:none;
-	border-bottom:1px solid green;
-	min-height:1.75em;
 }
 
 #shareform{

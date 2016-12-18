@@ -53,8 +53,13 @@ var phoriaHandler = {
 		var canvasParent = document.getElementById(parentDomId);
 		var canvas = document.getElementById(domId);
 		
-		canvas.width = 	canvasParent.getBoundingClientRect().width *0.99;
-		canvas.height = document.documentElement.clientHeight;
+		canvas.width = canvasParent.getBoundingClientRect().width *0.99;
+		
+		var brandHeight = $("#brand").height();
+		var cliHeight = document.documentElement.clientHeight;
+		
+		canvas.height =  (cliHeight - brandHeight) * 0.95;
+		console.log(canvas.height );
 
 		var scene = new Phoria.Scene();
 		scene.camera.position = {x:0.0, y:5.0, z:-15.0};
@@ -95,32 +100,12 @@ var phoriaHandler = {
 		scene.graph.push(selectBox);
 		this.selectBox = selectBox;
 		
-		// Plane to use as base only. Removing this on production
-		/*var plane = Phoria.Util.generateTesselatedPlane(8,8,0,20);
-		   scene.graph.push(Phoria.Entity.create({
-			  points: plane.points,
-			  edges: plane.edges,
-			  polygons: plane.polygons,
-			  style: {
-				 drawmode: "wireframe",
-				 shademode: "plain",
-				 linewidth: 0.5,
-				 objectsortmode: "back"
-			  }
-		}));*/
-		
 		this.camera = this.scene.camera; // Adjust the camera
-		
-		
+				
 		var mouse = Phoria.View.addMouseEvents(canvas, function() {
 		var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
-		 // console.log(cpv);
-		  //var intersects = Phoria.View.getIntersectedObjects(phoriaHandler.scene, cpv.clickPoint, cpv.clickVector);
-		  //console.log(intersects.length !== 0 ? intersects[0].entity.id : "[none]");
 	   });
-		
-		
-		//console.log("ENABLE THIS FOR PRODUCTION");
+
 		this.generateStarField(); // Generate background starfield
 		
 	},
@@ -284,9 +269,9 @@ var regionHandler = {
 		phoriaHandler.moveSelectBox(points[3].getPosArray());
 		
 		
-		console.log("REMOVE THIS FOR PRODUCTION");
-		phoriaHandler.camera.position = {x: 99999, y:99999, z: 99999 };
-		phoriaHandler.camera.lookat = {x: 99999, y:99999, z: 99999 };
+		//console.log("REMOVE THIS FOR PRODUCTION");
+		phoriaHandler.camera.position = {x: 9999, y:999, z: 220 };
+		phoriaHandler.camera.lookat = {x: 0, y:0, z: 0 };
 
 		
 		phoriaHandler.renderFrame();
@@ -508,13 +493,10 @@ var uiHandler = {
 				uiHandler.updateSystemGrid();
 			});
 		}
-		
 	},
 	
 	updateMaterialSystemsGrid: function(materialIndex){
-		
 		var material = materials.getMaterialByIndex(materialIndex);
-		
 		$("#materialDescriptionParent").html(Mustache.render($("#materialdescriptiontemplate").html(), material));
 		$("#materialGridParent").show();		
 		this.materialsGrid.updateSource(material.sources);
@@ -531,21 +513,21 @@ var uiHandler = {
 	},
 	
 	hideAll:function(){
-		$("#listGridContainer").hide();
-		$("#findGridParent").hide();
-		$("#materialsGridParent").hide();
+		$("#systemListParent").removeClass("c-tabs__tab--active");
+		$("#materialsGridParent").removeClass("c-tabs__tab--active");
+		$("#systemListTab").removeClass("c-tab-heading--active");
+		$("#materialsTab").removeClass("c-tab-heading--active");
 	},	
 	showList : function (){
 		this.hideAll();
-		$("#listGridContainer").show();
-	},
-	showFind:function(){
-		this.hideAll();
-		$("#findGridParent").show();
+		$("#systemListTab").addClass("c-tab-heading--active");
+		$("#systemListParent").addClass("c-tabs__tab--active");
 	},
 	showMaterials:function(){
 		this.hideAll();
-		$("#materialsGridParent").show();
+		$("#materialsTab").addClass("c-tab-heading--active");
+		$("#materialsTab").addClass("c-tab-heading--active");
+		$("#materialsGridParent").addClass("c-tabs__tab--active");
 	}
 	
 };
