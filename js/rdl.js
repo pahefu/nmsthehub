@@ -125,6 +125,7 @@ var phoriaHandler = {
 	doUpDownCamera :  function(up){
 		this.camera.position.y+=(up) ? 10 : -10; 
 		this.camera.lookat.y+=(up) ? 10 : -10; 
+		this.renderFrame();
 	},
 	
 	doZoom : function (forward){
@@ -146,6 +147,7 @@ var phoriaHandler = {
 		this.camera.position.y += dy /10;
 		this.camera.position.z += dz /10;
 		
+		this.renderFrame();
 	},
 	
 	rotateCamXZ : function (left){
@@ -158,6 +160,7 @@ var phoriaHandler = {
 		this.cameraAngleH -= variation;
 		this.camera.position.x = lx + Math.cos(this.cameraAngleH)*dist;
 		this.camera.position.z = lz + Math.sin(this.cameraAngleH)*dist;
+		this.renderFrame();
 	},
 	
 	rotateCamYZ : function (up){
@@ -170,6 +173,7 @@ var phoriaHandler = {
 		this.cameraAngleV -= variation;
 		this.camera.position.y = ly + Math.cos(this.cameraAngleV)*dist;
 		this.camera.position.z = lz + Math.sin(this.cameraAngleV)*dist;
+		this.renderFrame();
 	},
 	
 	renderFrame: function(){
@@ -270,7 +274,7 @@ var regionHandler = {
 		
 		
 		//console.log("REMOVE THIS FOR PRODUCTION");
-		phoriaHandler.camera.position = {x: 9999, y:999, z: 220 };
+		phoriaHandler.camera.position = {x: 9999, y:9999, z: 9999 };
 		phoriaHandler.camera.lookat = {x: 0, y:0, z: 0 };
 
 		

@@ -161,6 +161,22 @@
 				</div>
 				<div id="rightpanel" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-60@small">
 					<div id="canvasParent">
+						
+						<div id="canvasButtonParent">
+							<span class="c-input-group">
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(true);"><i class="icon-zoom-in"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(false);"><i class="icon-zoom-out"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doUpDownCamera(true);"><i class="icon-up-bold"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doUpDownCamera(false);"><i class="icon-down-bold"></i></button>
+							</span>
+							<span class="c-input-group">
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamXZ(true);"><i class="icon-left-big"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamYZ(true);"><i class="icon-up-big"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamYZ(false);"><i class="icon-down-big"></i></button>
+								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamXZ(false);"><i class="icon-right-big"></i></button>
+							</span>
+							
+						</div>
 						<canvas id="canvas" ></canvas>
 					</div>
 				</div>
@@ -195,8 +211,8 @@
 			</table>
 			<hr/>
 			<div> Page {{humanPageIndex}} of {{maxPages}}   
-				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
-				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
+				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> </i> 
+				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> </i> 
 			</div>
 		</script>
 		
@@ -249,8 +265,8 @@
 				</table>
 				<hr/>
 				<div> Page {{humanPageIndex}} of {{maxPages}}   
-					<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> Prev</i> 
-					<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> Next</i> 
+					<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> </i> 
+					<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> </i> 
 				</div>
 			{{/dataAvailable}}
 			{{^dataAvailable}}

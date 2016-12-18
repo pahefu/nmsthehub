@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'hubfont';
-  src: url('../fonts/hubfont.woff2?18011789') format('woff2');
+  src: url('../fonts/hubfont.woff2?85822721') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
@@ -10,7 +10,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'hubfont';
-    src: url('../font/hubfont.svg?18011789#hubfont') format('svg');
+    src: url('../font/hubfont.svg?85822721#hubfont') format('svg');
   }
 }
 */
@@ -50,9 +50,40 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
  
-.icon-target:before { content: '\e800'; } /* '' */
-.icon-search:before { content: '\e801'; } /* '' */
-.icon-money-1:before { content: '\e802'; } /* '' */
-.icon-money-2:before { content: '\e803'; } /* '' */
-.icon-money:before { content: '\f0d6'; } /* '' */
+.icon-plus-circled:before { content: '\e800'; } /* '' */
+.icon-minus-circled:before { content: '\e801'; } /* '' */
+.icon-users:before { content: '\e802'; } /* '' */
+.icon-help-circled:before { content: '\e803'; } /* '' */
+.icon-megaphone:before { content: '\e804'; } /* '' */
+.icon-palette:before { content: '\e805'; } /* '' */
+.icon-target:before { content: '\e806'; } /* '' */
+.icon-globe:before { content: '\e807'; } /* '' */
+.icon-reddit:before { content: '\e808'; } /* '' */
+.icon-target-1:before { content: '\e809'; } /* '' */
+.icon-trash:before { content: '\e80a'; } /* '' */
+.icon-right-open:before { content: '\e80b'; } /* '' */
+.icon-left-open:before { content: '\e80c'; } /* '' */
+.icon-target-2:before { content: '\e80d'; } /* '' */
+.icon-zoom-in:before { content: '\e80e'; } /* '' */
+.icon-zoom-out:before { content: '\e80f'; } /* '' */
+.icon-left-big:before { content: '\e810'; } /* '' */
+.icon-down-big:before { content: '\e811'; } /* '' */
+.icon-left-bold:before { content: '\e812'; } /* '' */
+.icon-up-bold:before { content: '\e813'; } /* '' */
+.icon-down-bold:before { content: '\e814'; } /* '' */
+.icon-right-bold:before { content: '\e815'; } /* '' */
+.icon-right-big:before { content: '\e816'; } /* '' */
+.icon-up-big:before { content: '\e817'; } /* '' */
+.icon-coffee:before { content: '\f0f4'; } /* '' */
+.icon-plus-squared:before { content: '\f0fe'; } /* '' */
+.icon-rocket:before { content: '\f135'; } /* '' */
+.icon-bullseye:before { content: '\f140'; } /* '' */
+.icon-minus-squared:before { content: '\f146'; } /* '' */
+.icon-space-shuttle:before { content: '\f197'; } /* '' */
+.icon-reddit-squared:before { content: '\f1a2'; } /* '' */
+.icon-brush:before { content: '\f1fc'; } /* '' */
 .icon-chart-line:before { content: '\f201'; } /* '' */
+.icon-street-view:before { content: '\f21d'; } /* '' */
+.icon-hand-pointer-o:before { content: '\f25a'; } /* '' */
+.icon-github:before { content: '\f300'; } /* '' */
+.icon-search:before { content: '\f50d'; } /* '' */
