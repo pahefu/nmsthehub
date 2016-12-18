@@ -77,7 +77,7 @@ var loadMetaData = function(){
 
 	regionHandler.addPseudoStar(0x15d,"Top of the tree",1,1, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
 	
-	regionHandler.addPseudoStar(0x12b,"Curious Group",2,1, "-1|17f|79|74","166576.5|277.1|266.5|258.4");
+	regionHandler.addPseudoStar(0x12b,"Curious Group",2,1, "-1|17f|79|74","166558.0|277.1|266.5|258.4");
 	
 	/* Materials metadata */
 	
