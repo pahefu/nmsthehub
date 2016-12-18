@@ -99,13 +99,7 @@
 					
 				}, false);
 
-				// THIS IS filter
-				var htmlForSelection = 
-					Mustache.render(
-					$("#selectstartemplate").html(), {data:  regionHandler.stars.sort(gridHandler.dynamicSort("solarIndexId"))});
-					$("#distanceASelected").html(htmlForSelection);	
-					$("#distanceBSelected").html(htmlForSelection);	
-			
+				
 			}
 
 		</script>
@@ -113,6 +107,7 @@
 		<div container style="max-width:inherit!important;">
 
 			<ul id="brand" class="c-nav c-nav--inline">
+				<li class="c-nav__content nopadding"><img id="atlaslogo" src="./img/hublogo.png" class="o-image"/></li>
 				<li class="c-nav__content nopadding">NMS The Hub Management System <span class="c-badge c-badge--brand">v.0.1</span></li>
 			</ul>
 
