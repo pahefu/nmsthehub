@@ -61,22 +61,23 @@ var materials = {
 
 var loadMetaData = function(){
 	
-	regionHandler.addPseudoStar(0x211,"Drogradur NO425",0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
-	regionHandler.addPseudoStar(0x164,"Nihonmatsuba ",0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
-	regionHandler.addPseudoStar(0x1f5,"De Caesarus",0, "-1|17f|79|74","166573.1|79.3|350.1|399.8");
-	regionHandler.addPseudoStar(0x95,"Polizeistaat",0, "-1|17f|79|74","166584.3|116.7|352.4|395.1");
-	regionHandler.addPseudoStar(0xA4,"Chevronech",0, "-1|17f|79|74","166597.9|455.9|134.0|70.7");
+	regionHandler.addPseudoStar(0x211,"Drogradur NO425",0,0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
+	regionHandler.addPseudoStar(0x164,"Nihonmatsuba ",0,0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
+	regionHandler.addPseudoStar(0x1f5,"De Caesarus",0,0, "-1|17f|79|74","166573.1|79.3|350.1|399.8");
+	regionHandler.addPseudoStar(0x95,"Polizeistaat",0,0, "-1|17f|79|74","166584.3|116.7|352.4|395.1");
+	regionHandler.addPseudoStar(0xA4,"Chevronech",0,0, "-1|17f|79|74","166597.9|455.9|134.0|70.7");
 	
-	regionHandler.addPseudoStar(0x16a,"Zoology Star",0, "-1|17f|79|74","166581.1|105.9|320.2|371.5");
-	regionHandler.addPseudoStar(0x1f7,"Aioiketiko",0, "-1|17f|79|74","166571.1|100.6|329.9|379.3");
+	regionHandler.addPseudoStar(0x16a,"Zoology Star",0,0, "-1|17f|79|74","166581.1|105.9|320.2|371.5");
+	regionHandler.addPseudoStar(0x1f7,"Aioiketiko",0,0, "-1|17f|79|74","166571.1|100.6|329.9|379.3");
 	
-	regionHandler.addPseudoStar(0x1dd,"Acquisition",0, "-1|17f|79|74","166572.2|108.4|310.5|358.5");
-	regionHandler.addPseudoStar(0xF1,"Beetle Star",0, "-1|17f|79|74","166598.2|169.3|431.8|486.1");
+	regionHandler.addPseudoStar(0x1dd,"Acquisition",0,0, "-1|17f|79|74","166572.2|108.4|310.5|358.5");
+	regionHandler.addPseudoStar(0xF1,"Beetle Star",0,0, "-1|17f|79|74","166598.2|169.3|431.8|486.1");
 
-	regionHandler.addPseudoStar(0x1B8,"K.Kesey",0, "-1|17f|79|74","166624.9|375.2|162.2|237.8");
+	regionHandler.addPseudoStar(0x1B8,"K.Kesey",0,0, "-1|17f|79|74","166624.9|375.2|162.2|237.8");
 
-	regionHandler.addPseudoStarTest(0x15d,"Top of the tree",0, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
-	regionHandler.addPseudoStarTest(0xABCD,"Lamefoo",0, "-1|17f|79|74|fe","166574.2|122.9|284.7|325.1|60.3");
+	regionHandler.addPseudoStar(0x15d,"Top of the tree",1,1, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
+	
+	regionHandler.addPseudoStar(0x12b,"Curious Group",2,1, "-1|17f|79|74","166576.5|277.1|266.5|258.4");
 	
 	/* Materials metadata */
 	

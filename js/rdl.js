@@ -23,7 +23,7 @@ var Class = function(methods) {
 };
 
 var Star = Class({
-	initialize: function(solarIndex,name,x,y,z, starColorIndex){
+	initialize: function(solarIndex,name,x,y,z, starColorIndex,  raceId){
 		this.solarIndex = solarIndex;
 		this.name = name;
 		this.x = x;
@@ -32,7 +32,7 @@ var Star = Class({
 		this.starColorIndex = starColorIndex;
 		this.mapObject = undefined;
 		this.metadata = {
-			race : 0,
+			race : raceId,
 			// Include metadata here
 		};
 	},
@@ -59,7 +59,6 @@ var phoriaHandler = {
 		var cliHeight = document.documentElement.clientHeight;
 		
 		canvas.height =  (cliHeight - brandHeight) * 0.95;
-		console.log(canvas.height );
 
 		var scene = new Phoria.Scene();
 		scene.camera.position = {x:0.0, y:5.0, z:-15.0};
@@ -251,14 +250,14 @@ var regionHandler = {
 		
 		// Populate the pointers base
 		var points = [
-			new Star(-1,'Galaxy center',-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0),
-			new Star(0x124,'CoolJungle', 20825.72704688998, -19.202783753792243, -3.0805012641606018, 0),
-			new Star(0x1b4,'LizardWorld',20818.927720684194, -12.418330391875925, 8.679687637891412, 0),
-			new Star(0x00,'Hub',20811.32748949516, -16.15057093374628, -5.244964575966744, 0),
-			new Star(0xFE,'Faith',20826.327571536, -15.405985004529528, -4.635964087619606, 0),
-			new Star(0x17F,'SouthernLight',20797.12265919312, -43.269288425630926, 2.8450806637888504, 0),
-			new Star(0x74,'FistOfTheNorth',20838.417260783983, 60.512951161021306, -3.449881518159776, 0),
-			new Star(0x79,'BlackHole',20845.021929809347, 45.91480267460992, 4.886646137508365, 0)
+			new Star(-1,'Galaxy center',-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
+			new Star(0x124,'CoolJungle', 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
+			new Star(0x1b4,'LizardWorld',20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
+			new Star(0x00,'Hub',20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
+			new Star(0xFE,'Faith',20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
+			new Star(0x17F,'SouthernLight',20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
+			new Star(0x74,'FistOfTheNorth',20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
+			new Star(0x79,'BlackHole',20845.021929809347, 45.91480267460992, 4.886646137508365, 0,2)
 		];
 		
 		// Force HUB as center of the region
@@ -300,86 +299,7 @@ var regionHandler = {
 		return distance;
 	},
 	
-	addPseudoStar : function (solarIndex,name,starColorIndex, blobids, blobdistances){
-		
-		this.addPseudoStarTest(solarIndex,name,starColorIndex, blobids, blobdistances);
-		return;
-		
-		var ids = blobids.split("|");
-		var distances = blobdistances.replace(/,/g , ".").split("|");
-
-		var trilatePoints = [];
-		
-		for(var i = 0;i<ids.length;i++){
-			ids[i] = parseInt(ids[i],16);
-			distances[i] = Number(distances[i]); 
-			if(distances[i]<100000) { distances[i] /= 4.0; } // NMS error labeling
-			
-			for(var j = 0;j<this.stars.length;j++){
-				if(this.stars[j].solarIndex == ids[i]){
-					var tp = this.stars[j];
-					trilatePoints.push({x: tp.x, y:tp.y, z:tp.z, r: distances[i]});
-					break;
-				}
-			}
-		}
-		
-		if(trilatePoints.length != ids.length){
-			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Not All ids found");
-			return;
-		}
-				
-		var pack1 = trilaterate(trilatePoints[0], trilatePoints[1], trilatePoints[2]);
-		var pack2 = trilaterate(trilatePoints[0], trilatePoints[2], trilatePoints[3]);
-		
-		if(pack1 == null || pack2 == null){
-			console.log("Cannot add: ", name, "with", blobids,blobdistances, "Trilaterate failed");
-			console.log(pack1,pack2);
-			
-			var pack = (pack1!=null) ? pack1 : pack2;
-			
-			this.addStar(new Star(solarIndex,name+"test1",pack[0].x+20811.32748949516, pack[0].y-16.15057093374628,pack[0].z-5.244964575966744, 0));
-			this.addStar(new Star(solarIndex,name+"test2",pack[1].x+20811.32748949516, pack[1].y-16.15057093374628,pack[1].z-5.244964575966744, 0));
-			
-			return;
-
-		}
-
-		var minDistance = 99999.9;
-		var minPoints = [undefined, undefined];
-		var localDistance = 0;	
-		
-		for(var i = 0;i < pack1.length;i++){
-			for(var j = 0;j<pack1.length;j++){
-				if(i==j){ continue;	}
-				localDistance = this.getDistance(pack1[i], pack1[j]);
-				if (localDistance<minDistance){
-					minDistance = localDistance;
-					minPoints[0] = pack1[i]; minPoints[1] = pack1[j];
-				}
-			}
-			for(var j = 0;j<pack2.length;j++){
-				localDistance = this.getDistance(pack1[i], pack2[j]);
-				if (localDistance<minDistance){
-					minDistance = localDistance;
-					minPoints[0] = pack1[i]; minPoints[1] = pack2[j];
-				}
-			}
-			
-		}
-
-		var middlePoint = { 
-			x: (minPoints[0].x+minPoints[1].x)/2 + 20811.32748949516,
-			y: (minPoints[0].y+minPoints[1].y)/2 + -16.15057093374628,
-			z: (minPoints[0].z+minPoints[1].z)/2 + -5.244964575966744
-		};
-		
-		this.addStar(new Star(solarIndex,name,middlePoint.x, middlePoint.y,middlePoint.z, 0));
-		
-	},
-	
-	
-	addPseudoStarTest : function (solarIndex,name,starColorIndex, blobids, blobdistances){
+	addPseudoStar: function (solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
 		var ids = blobids.split("|");
 		var distances = blobdistances.replace(/,/g , ".").split("|");
 
@@ -434,7 +354,7 @@ var regionHandler = {
 		var i = 0;
 		results.forEach(function(r){
 			if(i==0){
-				regionHandler.addStar(new Star(solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, (r==results[0])?1 : 0));
+				regionHandler.addStar(new Star(solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId));
 			}
 			
 			i++;
