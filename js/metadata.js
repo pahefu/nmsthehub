@@ -79,6 +79,10 @@ var loadMetaData = function(){
 	
 	regionHandler.addPseudoStar(0x12b,"Curious Group",2,1, "-1|17f|79|74","166558.0|277.1|266.5|258.4");
 	
+	regionHandler.addPseudoStar(0x01,"Umbalo",0,0, "-1|17f|79|74","166534.9|371.0|344.5|313.4");
+	regionHandler.addPseudoStar(0x02,"El segundo",0,0, "-1|17f|79|74","166538.6|332.6|321.3|298.3");
+	regionHandler.addPseudoStar(0x03,"Alteri",0,0, "-1|17f|79|74","166548.0|319.7|283.8|263.4");
+	
 	/* Materials metadata */
 	
 	materials.addSource(1,0x12b, false,"");
