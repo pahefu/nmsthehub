@@ -1,12 +1,5 @@
-function toHex(str, totalChars){
-	totalChars = (totalChars==undefined) ? 2 : totalChars;
-	str = ('0'.repeat(totalChars)+Number(str).toString(16)).slice(-totalChars).toUpperCase();	
-	return str;
-}
-
-function fromHex(str){
-	return parseInt(str,16);
-}
+// Created by pahefu @ 2017 
+// Update to include NMS Gamepedia Wiki
 
 var Class = function(methods) {   
 	var klass = function() {    
@@ -36,6 +29,7 @@ var Star = Class({
 			// Include metadata here
 		};
 	},
+	getBgColor : function () { return "background-color:rgb("+this.getStarColor()+");"; },
 	getStarColor : function() { return colors[this.starColorIndex] },
 	getHexSolarId : function() { return toHex(this.solarIndex,4); },
 	getRaceName : function() { return races[this.metadata.race]; },
@@ -69,7 +63,8 @@ var phoriaHandler = {
 		this.renderer = new Phoria.CanvasRenderer(canvas);
 
 		scene.graph.push(new Phoria.DistantLight());
-		   
+		  
+		// Region enclosure cube
 		var c = Phoria.Util.generateUnitCube(50);
 		var cubeParent = Phoria.Entity.create({
 			points: c.points,
@@ -83,6 +78,7 @@ var phoriaHandler = {
 		});
 		scene.graph.push(cubeParent.translateY(25));
 		
+		// Select box
 		var c = Phoria.Util.generateUnitCube(1);
 		var selectBox = Phoria.Entity.create({
 			points: c.points,
@@ -99,11 +95,13 @@ var phoriaHandler = {
 		scene.graph.push(selectBox);
 		this.selectBox = selectBox;
 		
+		// Camera
 		this.camera = this.scene.camera; // Adjust the camera
-				
+		
+		// Mouse actions
 		var mouse = Phoria.View.addMouseEvents(canvas, function() {
-		var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
-	   });
+			var cpv = Phoria.View.calculateClickPointAndVector(phoriaHandler.scene, mouse.clickPositionX, mouse.clickPositionY);
+		});
 
 		this.generateStarField(); // Generate background starfield
 		
@@ -176,12 +174,16 @@ var phoriaHandler = {
 	},
 	
 	renderFrame: function(){
-		this.scene.modelView();
-		this.renderer.render(this.scene);
+		if(this.scene !=undefined){
+			this.scene.modelView();
+			this.renderer.render(this.scene);
+		}
 	},
 	
 	addToScene : function (phoriaObj){
-		this.scene.graph.push(phoriaObj);
+		if(this.scene != undefined){
+			this.scene.graph.push(phoriaObj);
+		}
 	},
 	
 	generateStarField : function() {
@@ -237,9 +239,6 @@ var phoriaHandler = {
 	   return cube;
 	},
 	
-	
-	
-	
 };
 
 var regionHandler = {
@@ -250,10 +249,10 @@ var regionHandler = {
 		
 		// Populate the pointers base
 		var points = [
-			new Star(-1,'Galaxy center',-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
+			new Star(0,'Galaxy center',-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
 			new Star(0x124,'CoolJungle', 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
 			new Star(0x1b4,'LizardWorld',20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
-			new Star(0x00,'Hub',20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
+			new Star(0x999,'Hub',20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
 			new Star(0xFE,'Faith',20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
 			new Star(0x17F,'SouthernLight',20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
 			new Star(0x74,'FistOfTheNorth',20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
@@ -267,17 +266,15 @@ var regionHandler = {
 			this.addStar(points[i]);
 		}
 		
-		phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
-		phoriaHandler.camera.position = {x: points[3].x, y:points[3].y, z:points[3].z+220};
-		phoriaHandler.moveSelectBox(points[3].getPosArray());
-		
-		
-		//console.log("REMOVE THIS FOR PRODUCTION");
-		phoriaHandler.camera.position = {x: 9999, y:9999, z: 9999 };
-		phoriaHandler.camera.lookat = {x: 0, y:0, z: 0 };
+		if(phoriaHandler.scene!=undefined){
+			phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
+			phoriaHandler.camera.position = {x: points[3].x, y:points[3].y, z:points[3].z+220};
+			phoriaHandler.moveSelectBox(points[3].getPosArray());
+			phoriaHandler.camera.position = {x: 9999, y:9999, z: 9999 };
+			phoriaHandler.camera.lookat = {x: 0, y:0, z: 0 };
+			phoriaHandler.renderFrame();
+		}
 
-		
-		phoriaHandler.renderFrame();
 	},
 	
 	getStarByIndex: function(solarIndex){
@@ -290,13 +287,25 @@ var regionHandler = {
 	},
 	
 	getDistance: function(p1, p2){
-		
 		var dX = p2.x - p1.x;
 		var dY = p2.y - p1.y;
 		var dZ = p2.z - p1.z;
 	
 		var distance = Math.sqrt(dX*dX + dY*dY + dZ*dZ);
 		return distance;
+	},
+	
+	addStar : function(star){
+		star.x-=this.regionCenter.x;
+		star.y-=this.regionCenter.y;
+		star.z-=this.regionCenter.z;
+		
+		// Create new object
+		var mapObject = phoriaHandler.generateStar(star, undefined);
+		phoriaHandler.addToScene(mapObject);
+		star.mapObject = mapObject;
+		this.mapObjects.push(mapObject);
+		this.stars.push(star);
 	},
 	
 	addPseudoStar: function (solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
@@ -364,23 +373,7 @@ var regionHandler = {
 		return;
 
 	},
-	
-	
-	
-	addStar : function(star){
-		
-		star.x-=this.regionCenter.x;
-		star.y-=this.regionCenter.y;
-		star.z-=this.regionCenter.z;
-		
-		// Create new object
-		var mapObject = phoriaHandler.generateStar(star, undefined);
-		phoriaHandler.addToScene(mapObject);
-		star.mapObject = mapObject;
-		this.mapObjects.push(mapObject);
-		this.stars.push(star);
-	},
-	
+
 	lookAt : function(solarIndex){
 		solarIndex = Number(solarIndex);
 		if (isNaN(solarIndex)){
@@ -392,66 +385,187 @@ var regionHandler = {
 				var s = this.stars[i];
 				phoriaHandler.camera.lookat = {x: s.x, y:s.y, z:s.z};
 				phoriaHandler.camera.position = {x: s.x, y:s.y, z:s.z+220};
-
 				phoriaHandler.moveSelectBox(s.getPosArray());
-				phoriaHandler.resetCameraAngle();
-				
+				phoriaHandler.resetCameraAngle();				
 				break;
 			}
 		}
 		
 		phoriaHandler.renderFrame();
 	}
+	
 };
 
-var uiHandler = {
-	
-	initialize : function(systemGridFilterBox){
-		this.systemGrid = new GridHandler(regionHandler.stars, "#listGridParent", "#systemGridTemplate");
-		this.materialsGrid = new GridHandler(undefined,"#materialGridParent","#materialsystemstemplate");
+var uiSelectionApp = new Vue({
+	el: '#uiSelectionApp',
+	data: {
+		isTab : true,
+		viewSystemList : true,
+		viewMaterials: false,
+		viewChangeCallbacks : Array(),
 		
-		$("#materialbuttonsgrid").html(Mustache.render($("#materialbuttonstemplate").html(), materials));
-		
-		if (systemGridFilterBox!=null){
-			$(systemGridFilterBox).keyup(function(event){
-				uiHandler.updateSystemGrid();
-			});
+	},
+	methods:{
+		runCallbacks : function(){
+			for(var i = 0; i < this.viewChangeCallbacks.length; i++){
+				this.viewChangeCallbacks[i](); // Run it
+			}
+			systemSelectionApp.viewActive = this.viewSystemList;
+			materialSelectionApp.viewActive = this.viewMaterials;
+		},
+		showSystemList : function(){
+			this.viewSystemList = true;
+			this.viewMaterials = false;
+			this.runCallbacks();
+		},
+		showMaterials : function(){
+			this.viewSystemList = false;
+			this.viewMaterials = true;
+			this.runCallbacks();
 		}
-	},
-	
-	updateMaterialSystemsGrid: function(materialIndex){
-		var material = materials.getMaterialByIndex(materialIndex);
-		$("#materialDescriptionParent").html(Mustache.render($("#materialdescriptiontemplate").html(), material));
-		$("#materialGridParent").show();		
-		this.materialsGrid.updateSource(material.sources);
-		this.materialsGrid.sortById("solarIndex",false);
-		this.materialsGrid.resetPages();
-		this.materialsGrid.updateView();
-	},
-	
-	updateSystemGrid : function (){
-		this.systemGrid.setFilterText($("#listSearchKey").val());
-		this.systemGrid.sortById("solarIndex");
-		this.systemGrid.resetPages();
-		this.systemGrid.updateView();
-	},
-	
-	hideAll:function(){
-		$("#systemListParent").removeClass("c-tabs__tab--active");
-		$("#materialsGridParent").removeClass("c-tabs__tab--active");
-		$("#systemListTab").removeClass("c-tab-heading--active");
-		$("#materialsTab").removeClass("c-tab-heading--active");
-	},	
-	showList : function (){
-		this.hideAll();
-		$("#systemListTab").addClass("c-tab-heading--active");
-		$("#systemListParent").addClass("c-tabs__tab--active");
-	},
-	showMaterials:function(){
-		this.hideAll();
-		$("#materialsTab").addClass("c-tab-heading--active");
-		$("#materialsTab").addClass("c-tab-heading--active");
-		$("#materialsGridParent").addClass("c-tabs__tab--active");
 	}
 	
-};
+});
+
+var systemSelectionApp = new Vue({
+	el: "#systemSelectionApp",
+	data:{
+		viewActive: true,
+		isTab : true,
+		privateData : regionHandler.stars,
+		systemFilter : "",
+		visibleSystems : [],
+		currentPage : 0,
+		currentHumanPage : 1,
+		maxPages : 1,
+		maxPerPage : 5
+	},
+	methods:{
+		prevPage : function(){
+			if (this.currentPage>0){
+				this.currentPage--;
+			}
+			this.refreshSystems();
+		},
+		nextPage : function(){
+			if (this.currentPage< this.maxPages-1){
+				this.currentPage++;
+			}
+			this.refreshSystems();
+		},
+		
+		dynamicSort : function (property) {
+			var sortOrder = 1;
+			if(property[0] === "-") {
+				sortOrder = -1;
+				property = property.substr(1);
+			}
+			return function (a,b) {
+				var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+				return result * sortOrder;
+			}
+		},
+		sortById : function (propertyName){
+			this.privateData = this.privateData.sort(this.dynamicSort(propertyName));	
+		},	 
+		applyFilter : function(){
+			// Apply filters then gather info from current subview
+			this.privateData = regionHandler.stars.slice();
+			this.currentPage = 0; // Reset to 0
+			
+			var result = [];
+			for(var i = 0;i<this.privateData.length;i++){
+				if(this.privateData[i].name.toLowerCase().includes(this.systemFilter)
+					||
+				this.privateData[i].getHexSolarId().toLowerCase().includes(this.systemFilter)){
+					result.push(this.privateData[i]);
+				}
+			}
+			this.privateData = result;
+			this.sortById("solarIndex");
+			this.refreshSystems();
+		},
+		refreshSystems : function(){
+			this.maxPages = Math.ceil(this.privateData.length / this.maxPerPage);
+			this.visibleSystems = this.privateData.slice(this.currentPage*this.maxPerPage, this.currentPage*this.maxPerPage +this.maxPerPage);
+		},
+		showSystem : function(element){
+			if(element.target.id.indexOf("#sys_"!=-1)){
+				var i = Number(element.target.id.replace("#sys_",""));
+				regionHandler.lookAt(i);
+			}
+		}
+	}
+});
+
+var materialSelectionApp = new Vue({
+	el: "#materialSelectionApp",
+	data:{
+		viewActive: false,
+		isTab : true,
+		privateData : regionHandler.stars,
+		systemFilter : "",
+		visibleSystems : [],
+		currentPage : 0,
+		currentHumanPage : 1,
+		maxPages : 1,
+		maxPerPage : 5,
+		selectedMat: undefined,
+		materials : []
+	},
+	methods:{
+		
+		prevPage : function(){
+			if (this.currentPage>0){
+				this.currentPage--;
+			}
+			this.refreshSystems();
+		},
+		nextPage : function(){
+			if (this.currentPage< this.maxPages-1){
+				this.currentPage++;
+			}
+			this.refreshSystems();
+		},
+		
+		dynamicSort : function (property) {
+			var sortOrder = 1;
+			if(property[0] === "-") {
+				sortOrder = -1;
+				property = property.substr(1);
+			}
+			return function (a,b) {
+				var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+				return result * sortOrder;
+			}
+		},
+		sortById : function (propertyName){
+			this.privateData = this.privateData.sort(this.dynamicSort(propertyName));	
+		},	 
+		
+		refreshSystems : function(){
+			this.maxPages = Math.ceil(this.privateData.length / this.maxPerPage);
+			this.visibleSystems = this.privateData.slice(this.currentPage*this.maxPerPage, this.currentPage*this.maxPerPage +this.maxPerPage);
+		},
+
+		selectMaterial : function(element){
+			if(element.target.id.indexOf("#mat_"!=-1)){
+				var i = Number(element.target.id.replace("#mat_",""));
+				this.selectedMat = this.materials[i];
+				this.privateData = this.selectedMat.sources;
+				this.sortById("solarIndex");
+				this.refreshSystems();
+			}
+		},
+		showSystem : function(element){
+			if(element.target.id.indexOf("#matsys_"!=-1)){
+				var i = Number(element.target.id.replace("#matsys_",""));
+				regionHandler.lookAt(i);
+			}
+		}
+	}
+});
+
+$("#systemFilterTexBox").keyup(function(event){
+	systemSelectionApp.applyFilter();
+});

@@ -7,6 +7,16 @@ var colors = [
 
 var races = ['Gek','Korvax','Vy\'keen'];
 
+function toHex(str, totalChars){
+	totalChars = (totalChars==undefined) ? 2 : totalChars;
+	str = ('0'.repeat(totalChars)+Number(str).toString(16)).slice(-totalChars).toUpperCase();	
+	return str;
+}
+
+function fromHex(str){
+	return parseInt(str,16);
+}
+
 var materials = {
 	
 	data : [
@@ -60,31 +70,9 @@ var materials = {
 }
 
 var loadMetaData = function(){
-	
-	regionHandler.addPseudoStar(0x211,"Drogradur NO425",0,0, "-1|17f|79|74","166592.9|387.6|154.7|204.4");
-	regionHandler.addPseudoStar(0x164,"Nihonmatsuba ",0,0, "-1|17f|79|74","166538.1|350.5|336.7|309.6");
-	regionHandler.addPseudoStar(0x1f5,"De Caesarus",0,0, "-1|17f|79|74","166573.1|79.3|350.1|399.8");
-	regionHandler.addPseudoStar(0x95,"Polizeistaat",0,0, "-1|17f|79|74","166584.3|116.7|352.4|395.1");
-	regionHandler.addPseudoStar(0xA4,"Chevronech",0,0, "-1|17f|79|74","166597.9|455.9|134.0|70.7");
-	
-	regionHandler.addPseudoStar(0x16a,"Zoology Star",0,0, "-1|17f|79|74","166581.1|105.9|320.2|371.5");
-	regionHandler.addPseudoStar(0x1f7,"Aioiketiko",0,0, "-1|17f|79|74","166571.1|100.6|329.9|379.3");
-	
-	regionHandler.addPseudoStar(0x1dd,"Acquisition",0,0, "-1|17f|79|74","166572.2|108.4|310.5|358.5");
-	regionHandler.addPseudoStar(0xF1,"Beetle Star",0,0, "-1|17f|79|74","166598.2|169.3|431.8|486.1");
 
-	regionHandler.addPseudoStar(0x1B8,"K.Kesey",0,0, "-1|17f|79|74","166624.9|375.2|162.2|237.8");
-
-	regionHandler.addPseudoStar(0x15d,"Top of the tree",1,1, "-1|17f|79|74","166576.5|223.1|205.2|230.0");
-	
-	regionHandler.addPseudoStar(0x12b,"Curious Group",2,1, "-1|17f|79|74","166558.0|277.1|266.5|258.4");
-	
-	regionHandler.addPseudoStar(0x01,"Umbalo",0,0, "-1|17f|79|74","166534.9|371.0|344.5|313.4");
-	regionHandler.addPseudoStar(0x02,"El segundo",0,0, "-1|17f|79|74","166538.6|332.6|321.3|298.3");
-	regionHandler.addPseudoStar(0x03,"Alteri",0,0, "-1|17f|79|74","166548.0|319.7|283.8|263.4");
-	
 	/* Materials metadata */
-	
+
 	materials.addSource(1,0x12b, false,"");
 	materials.addSource(5,0x12b, false,"");
 	materials.addSource(8,0x184, false,"");
@@ -97,6 +85,49 @@ var loadMetaData = function(){
 	materials.addSource(15,0x11c,true,"Buy at Merchants");
 	materials.addSource(16,0xdd,true,"Buy at Merchants");
 	
-	phoriaHandler.renderFrame();
-	
+	// Show the info to the current values
+	materialSelectionApp.materials = materials.data;	
+}
+
+function loadDataFromWiki(){
+	$.ajax({ 
+		url: 'http://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
+		dataType: 'jsonp',
+		success: function(data) {
+			var externalData = data.parse.wikitext["*"].split("\n\n");
+			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\" ([A-Za-z]+) ([A-Za-z]+)");
+			var systemColors = "yrgb";
+			var systemRaces = "gkv";
+			for(var i = 0; i< externalData.length;i++){
+				if(externalData[i].indexOf("SystemData")>=0){ // Only if data present
+					var systemInfo = externalData[i].split("\n");
+					
+					var line_1 = systemDataRe.exec(systemInfo[0]);
+					if(line_1!=null){
+						var offset = 2;
+						systemSolarIndex = fromHex(line_1[offset++]);
+						systemName = line_1[offset++];
+						systemColor = systemColors.indexOf(line_1[offset++].toLowerCase()[0]); 
+						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
+						//console.log(systemSolarIndex, systemName, systemColor, systemRace);
+						
+						var distanceIds = systemInfo[1].split(" ").slice(1).join("|");
+						var distanceValues = systemInfo[2].split(" ").slice(1).join("|");
+						
+						//console.log(distanceIds, distanceValues);
+						
+						regionHandler.addPseudoStar(systemSolarIndex,systemName,systemColor,systemRace, distanceIds, distanceValues);
+						
+					}else{
+						console.log("Failed to parse line: ", systemInfo[0])
+					}
+				}
+			}
+			systemSelectionApp.applyFilter();
+			systemSelectionApp.refreshSystems();
+
+		}
+	});
+
+
 }

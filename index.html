@@ -1,10 +1,13 @@
 <!doctype html>
+
+<!-- Created by pahefu @ 2017 -->
+<!-- Version review -->
+
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-
+		<meta charset="utf-8">
 		<link rel="stylesheet" href="./css/blaze.min.css">
-		
 		
 		<link rel="stylesheet" href="./css/style.css">
 		<link rel="stylesheet" href="./css/hubfont.css">
@@ -13,12 +16,12 @@
 		<script src="./js/phoria-min.js"></script>
 		<script src="./js/trilateration.js"></script>
 		
+		<script src="./js/vue.min.js"></script>
+		
 		<script src="./js/zepto.min.js"></script>
 		<script src="./js/mustache.min.js"></script>
 		<script src="./js/metadata.js"></script>
-		<script src="./js/rdl.js"></script>
-		<script src="./js/hgrid.js"></script>
-		
+
 		<title>NMS The HUB: Management System</title>
 	</head>
 	
@@ -26,80 +29,31 @@
 
 		<script type="text/javascript">
 			var requestAnimFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
-                       window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
-                       function(c) {window.setTimeout(c, 250)};
+			window.mozRequestAnimationFrame || window.msRequestAnimationFrame || 
+			function(c) {window.setTimeout(c, 250)};
 
 			// bind to window onload event
 			window.addEventListener('load', onloadHandler, false);
 
 			function onloadHandler(){
-			
 				phoriaHandler.initialize("canvas","canvasParent");
 				regionHandler.initialize();
 				
-				uiHandler.initialize("#listSearchKey");	
 				loadMetaData();
-				uiHandler.updateSystemGrid();
-			
-				var pause = false;
+
+				systemSelectionApp.applyFilter();
+				systemSelectionApp.refreshSystems();
+
+				loadDataFromWiki(); // Here we load the data
+				
+				/*var pause = false;
 				var fnAnimate = function() {
 				  if (!pause){
 					 phoriaHandler.scene.modelView();
 					 phoriaHandler.renderer.render(phoriaHandler.scene);
 				  }
 				  requestAnimFrame(fnAnimate);
-				};
-
-				// key binding
-				document.addEventListener('keydown', function(e) {
-					switch (e.keyCode){
-						case 27: // ESC
-							pause = !pause;
-						break;
-						case 87: // W
-						//phoriaHandler.camera.position.z-=10;
-							phoriaHandler.rotateCamYZ(true);
-						break;
-						case 83: // S
-						// move back along current heading
-						//fnPositionLookAt(vec3.fromValues(0,0,-1), heading, lookAt);
-							phoriaHandler.rotateCamYZ(false);
-						break;	
-
-						case 65: // A
-							phoriaHandler.rotateCamXZ(true);
-						break;
-						
-						case 68: // D
-							phoriaHandler.rotateCamXZ(false);
-						break;
-						
-						case 81: // Q
-							phoriaHandler.doZoom(true);
-						break;
-
-						case 69: // E
-							phoriaHandler.doZoom(false);
-						break;
-						
-						case 38: // Arrow up
-							phoriaHandler.doUpDownCamera(true);
-						break;
-						
-						case 40: // Arrow down
-							phoriaHandler.doUpDownCamera(false);
-						break;
-						
-						default:
-							console.log(e.keyCode);
-						break;
-					}
-					
-					phoriaHandler.renderFrame();
-					
-				}, false);
-
-				
+				};*/
 			}
 
 		</script>
@@ -107,56 +61,176 @@
 		<div container style="max-width:inherit!important;">
 
 			<ul id="brand" class="c-nav c-nav--inline">
-				<li class="c-nav__content nopadding"><img id="atlaslogo" src="./img/hublogo.png" class="o-image"/></li>
-				<li class="c-nav__content nopadding">NMS The Hub Management System <span class="c-badge c-badge--brand">v.0.1</span></li>
+				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.png"/></li>
+				<li class="c-nav__content nopadding">
+					NMS The Hub Management System 
+					<span class="c-badge c-badge--brand">v.0.2</span>
+				</li>
 			</ul>
 
 			<div  class="o-grid  o-grid--wrap">
 				<div id="leftpanel" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-40@small">
 					
 					<div id="mainsectionblock" class="c-card">
-					
+
 						<div class="c-tabs">
-							<div class="c-tabs__headings">
-								<div class="c-tab-heading c-tab-heading--active" id="systemListTab"  onclick="uiHandler.showList();"><i class="icon-target"></i> System selection</div>
-								<div class="c-tab-heading" id="materialsTab" onclick="uiHandler.showMaterials();"><i class="icon-chart-line"></i> Materials list</div>
-							</div>
-							
-							<div id="systemListParent" class="c-tabs__tab c-tabs__tab--active">
-								<div id="listGridContainer">
-									<div class="paneltitle" >System selection</div>
-									<div>Click on a system name to see it or type below to filter the list in real time</div>
-									<input type="text" id="listSearchKey" class="c-field" >
-									<div id="listGridParent"><!--Table here--></div>
+							<div class="c-tabs__headings" id="uiSelectionApp">
+								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewSystemList }" id="systemListTab" v-on:click="showSystemList">
+									<i class="icon-target"></i> System selection
 								</div>
+								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewMaterials }" id="materialsTab" v-on:click="showMaterials">
+									<i class="icon-chart-line"></i> Materials list
+								</div>								
 							</div>
 							
-							<div id="materialsGridParent" class="c-tabs__tab">
+							<!-- System selection APP -->
+							<div id="systemSelectionApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
+								
+								<div class="paneltitle" >System selection</div>
+								<div>Click on a system name to see it or type below to filter the list in real time</div>
+								<input type="text" class="c-field" id="systemFilterTexBox" v-model="systemFilter">
+								<div id="listGridParent">
+									<table id="systemGridTable" class="c-table">
+										<thead class="c-table__head">
+											<tr class="c-table__row c-table__row--heading">
+												<th class="c-table__cell">ID</th>
+												<th class="c-table__cell">Name</th>
+												<th class="c-table__cell">Color</th>
+												<th class="c-table__cell">Race</th>
+											</tr>
+										</thead>
+										<tbody class="c-table__body">
+											<template v-for="system of visibleSystems">
+												<tr class="gridStarRow c-table__row">
+													<td class="c-table__cell">{{system.getHexSolarId()}}</td>
+													<td class="c-table__cell gridStarName" :id='"#sys_"+system.solarIndex' v-on:click="showSystem" >{{system.name}}</td>
+													<td class="c-table__cell"><div class="gridStarColor" :style="system.getBgColor()"></div></td>
+													<td class="c-table__cell">{{system.getRaceName()}}</td>
+												</tr>
+											</template>
+										</tbody>
+									</table>
+									
+									<div id="systemListFooter" v-if="visibleSystems.length>0">
+										<hr/>
+										<div> Page {{currentPage +1 }} of {{maxPages}}   
+											<i class="icon-left-open pageleft" title="previous" v-on:click="prevPage"> </i> 
+											<i class="icon-right-open pageright" title="next"  v-on:click="nextPage"> </i> 
+										</div>
+									</div>
+								</div>
+	
+							</div>
+							<!-- End of SystemSelection APP -->
+							
+							<!-- Material list APP -->
+							<div id="materialSelectionApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
 								<div class="paneltitle">Materials list</div>
 								<div>click on a material button to check where you can find it in the hub</div>
 
-								<div id="materialbuttonsgrid"><!--Buttons Here--></div>
+								<div id="materialbuttonsgrid">
+									<template v-for="(mat, index) of materials">
+										<div column="6" class="materialbuttondiv">
+											<button class="materialbutton c-button u-medium" :id='"#mat_"+mat.id' v-on:click="selectMaterial">{{mat.name}}</button>
+										</div>
+									</template>
+								</div>
 
 								<div>
 									<div class="paneltitle">Material information</div>
 									<div id="materialDescriptionParent">
-										Pick one material to see where to get it.
+										<div v-if="selectedMat!=undefined">
+											<table id="materialdescriptiontable" class="c-table" >
+												<thead class="c-table__head">
+													<tr class="c-table__row c-table__row--heading">
+														<th class="c-table__cell">Name</th><th class="c-table__cell">Requires tool</th><th class="c-table__cell">Available always</th><th class="c-table__cell">Notes</th>
+													</tr>
+												</thead>
+												<tbody class="c-table__body">
+													<tr class="c-table__row">
+														<td class="c-table__cell">{{selectedMat.name}}</td>
+														<td class="c-table__cell">{{selectedMat.tool}}</td>
+														<td class="c-table__cell">{{selectedMat.allPlanets}}</td>
+														<td class="c-table__cell">{{selectedMat.notes}}</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<div v-else>
+											Pick one material to see where to get it.
+										</div>
 									</div>
 									
 									<div class="paneltitle">Associated systems</div>
 									
-									<div id="materialGridParent" style="display:none;">
+									<div id="materialGridParent">
+										<!-- Material result -->
+										
+										
+										<!-- Material sources -->
+										<div v-if="selectedMat!=undefined">
+											<!-- Visible table -->
+											<div v-if="visibleSystems.length!=0">
+												<table id="materialSourcesGridTable"  class="c-table">
+													<thead class="c-table__head">
+														<tr  class="c-table__row c-table__row--heading">
+															<th class="c-table__cell">ID</th><th class="c-table__cell">System Name</th><th class="c-table__cell">Location</th><th class="c-table__cell">Notes</th>
+														</tr>
+													</thead>
+													<tbody class="c-table__body">
+														<template v-for="system of visibleSystems">
+															<tr class="gridStarRow c-table__row">
+																<td class="c-table__cell">{{system.solarIndexHex}}</td>
+																<td class="gridStarName c-table__cell" :id='"#matsys_"+system.solarIndex' v-on:click="showSystem" >{{system.name}}</td>
+																<td class="c-table__cell">
+																	<div v-if="system.inStation">In space station</div>
+																	<div v-else>In planet</div>
+																</td>
+																<td class="c-table__cell">{{system.notes}}</td>
+															</tr>
+														</template>
+													</tbody>
+												</table>
+												
+												<hr/>
+											
+												<div> Page {{currentPage +1 }} of {{maxPages}}   
+													<i class="icon-left-open pageleft" title="previous" v-on:click="prevPage"> </i> 
+													<i class="icon-right-open pageright" title="next"  v-on:click="nextPage"> </i> 
+												</div>
+										
+											</div>
+											<div v-else>
+												<div v-if="!selectedMat.allPlanets">
+													<div class="centered"><strong>No associated systems known</strong></div>
+												</div>
+												<div v-else>
+													<div class="centered"><strong>Available in all planets</strong></div>
+												</div>
+											</div>
+											
+											
+										</div>
 										
 									</div>
 								</div>
 							</div>
+							<!-- End of material list APP -->
 						</div>
 					</div>
 					
+					<div id="poweredBy">
+						<div class="poweredByContent">
+								Powered by NMS Wiki at 
+								<a class="poweredByContent" href="http://nomanssky.gamepedia.com">
+									<img src="http://nomanssky.gamepedia.com/skins/Hydra/images/netbar/logo-fallback.png" alt="Gamepedia wiki"/>
+								</a>
+						</div>						
+					</div>
 				</div>
+								
 				<div id="rightpanel" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-60@small">
 					<div id="canvasParent">
-						
 						<div id="canvasButtonParent">
 							<span class="c-input-group">
 								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(true);"><i class="icon-zoom-in"></i></button>
@@ -177,97 +251,9 @@
 				</div>
 			</div>
 		</div>
-		
-		<script id="selectstartemplate" type="text/template">
-			{{#data}}
-				<option value="solarIndex">{{getHexSolarId}}-{{name}}</option>
-			{{/data}}
-		</script>
-		
-		<script id="systemGridTemplate" type="text/template">
-			<table id="systemGridTable" class="c-table">
-				<thead class="c-table__head">
-					<tr class="c-table__row c-table__row--heading">
-						<th class="c-table__cell">ID</th>
-						<th class="c-table__cell">Name</th>
-						<th class="c-table__cell">Color</th>
-						<th class="c-table__cell">Race</th></tr>
-				</thead>
-				<tbody class="c-table__body">
-				{{#currentData}}
-					<tr class="gridStarRow c-table__row">
-						<td class="c-table__cell">{{getHexSolarId}}</td>
-						<td class="c-table__cell gridStarName" onclick="regionHandler.lookAt({{solarIndex}});">{{name}}</td>
-						<td class="c-table__cell"><div class="gridStarColor" style="background-color:rgb({{getStarColor}});"></div></td>
-						<td class="c-table__cell">{{getRaceName}}</td>
-					</tr>
-				{{/currentData}}
-				</tbody>
-			</table>
-			<hr/>
-			<div> Page {{humanPageIndex}} of {{maxPages}}   
-				<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> </i> 
-				<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> </i> 
-			</div>
-		</script>
-		
-		<script id="materialbuttonstemplate" type="text/template">
-			{{#data}}
-				<div column="6" class="materialbuttondiv">
-				
-					<button class="materialbutton c-button u-medium"  onclick="uiHandler.updateMaterialSystemsGrid({{id}});">{{name}}</button>
-				</div>
-			{{/data}}
-		</script>
-		
-		<script id="materialdescriptiontemplate" type="text/template">
-			<table id="materialdescriptiontable"  class="c-table">
-				<thead class="c-table__head">
-					<tr class="c-table__row c-table__row--heading">
-						<th class="c-table__cell">Name</th><th class="c-table__cell">Requires tool</th><th class="c-table__cell">Available always</th><th class="c-table__cell">Notes</th>
-					</tr>
-				</thead>
-				<tbody class="c-table__body">
-					<tr class="c-table__row">
-						<td class="c-table__cell">{{name}}</td>
-						<td class="c-table__cell">{{tool}}</td>
-						<td class="c-table__cell">{{#allPlanets}}Yes{{/allPlanets}}{{^allPlanets}}No{{/allPlanets}}</td>
-						<td class="c-table__cell">{{notes}}</td>
-					</tr>
-				</tbody>
-			</table>
-		</script>
+	
+	
+		<script src="./js/rdl.js"></script>
 
-		<script id="materialsystemstemplate" type="text/template">
-			
-			{{#dataAvailable}}
-				<table id="materialSourcesGridTable"  class="c-table">
-					<thead class="c-table__head">
-						<tr  class="c-table__row c-table__row--heading">
-							<th class="c-table__cell">ID</th><th class="c-table__cell">System Name</th><th class="c-table__cell">Location</th><th class="c-table__cell">Notes</th>
-						</tr>
-					</thead>
-					<tbody class="c-table__body">
-					{{#currentData}}
-						<tr class="gridStarRow c-table__row">
-							<td class="c-table__cell">{{solarIndexHex}}</td>
-							<td class="gridStarName c-table__cell" {{#knownStar}} onclick="regionHandler.lookAt({{solarIndex}});"{{/knownStar}} >{{name}}</td>
-							<td class="c-table__cell">{{#inStation}}Yes{{/inStation}}{{^inStation}}In planets{{/inStation}}</td>
-							<td class="c-table__cell">{{notes}}</td>
-						</tr>
-					{{/currentData}}
-					</tbody>
-				</table>
-				<hr/>
-				<div> Page {{humanPageIndex}} of {{maxPages}}   
-					<i class="icon-left-open pageleft" title="previous" onclick="uiHandler.systemGrid.listPrevPage();"> </i> 
-					<i class="icon-right-open pageright" title="next" onclick="uiHandler.systemGrid.listNextPage();"> </i> 
-				</div>
-			{{/dataAvailable}}
-			{{^dataAvailable}}
-				
-				<div class="centered"><strong>No associated systems known</strong></div>
-			{{/dataAvailable}}
-		</script>
 	</body>
 </html>

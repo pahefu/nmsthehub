@@ -1,7 +1,6 @@
 @font-face {
   font-family: 'HubFontText';
   src: url('../fonts/ec.woff2') format('woff2') /* Super Modern Browsers */
-  
 }
 
 html{
@@ -12,8 +11,12 @@ body{
 	font-family: 'HubFontText';
 }
 
-#brand{
-	
+.logoParent{
+	padding-right: 0em;
+}
+
+#hubLogo{
+	vertical-align: middle;
 }
 
 #mainsectionblock{
@@ -112,5 +115,18 @@ table{
 }
 
 #canvasButtonParent{
-		position: absolute;
+	position: absolute;
+}
+
+#poweredBy{
+	color:white;
+	text-align: center !important;
+	line-height: 35px !important;
+	height:35px !important;
+}
+
+.poweredByContent{
+	display:inline-block;
+	height:100%;
+	vertical-align:middle;
 }
