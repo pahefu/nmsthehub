@@ -91,7 +91,7 @@ var loadMetaData = function(){
 
 function loadDataFromWiki(){
 	$.ajax({ 
-		url: 'http://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
+		url: 'https://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
 		dataType: 'jsonp',
 		success: function(data) {
 			var externalData = data.parse.wikitext["*"].split("\n\n");
