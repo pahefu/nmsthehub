@@ -1,5 +1,5 @@
 // Created by pahefu @ 2017 
-// Update to include performance updates
+// Update to include performance updates (even more)
 
 var colors = [
 	[232,213,49], // YELLOW_STAR
@@ -95,6 +95,7 @@ var loadMetaData = function(){
 function loadDataFromWiki(){
 	systemSelectionApp.wikiLoading = true;
 	$.ajax({ 
+		
 		url: 'https://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
 		dataType: 'jsonp',
 		success: function(data) {
@@ -128,12 +129,9 @@ function loadDataFromWiki(){
 				}
 			}
 			
-			
 			systemSelectionApp.applyFilter(); // Autocalls system list refresh here
 			systemSelectionApp.wikiLoading = false;
-
 		}
 	});
-
 
 }

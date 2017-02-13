@@ -2,7 +2,7 @@
 
 <!-- Created by pahefu @ 2017 -->
 <!-- Version review 0.3 -->
-<!-- Applied performance updates -->
+<!-- Applied performance updates (twice) -->
 
 <html>
 	<head>
@@ -62,7 +62,7 @@
 				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.png"/></li>
 				<li class="c-nav__content nopadding">
 					NMS The Hub Management System 
-					<span class="c-badge c-badge--brand">v.0.3</span>
+					<span class="c-badge c-badge--brand">v.0.3.1</span>
 				</li>
 			</ul>
 
@@ -245,11 +245,11 @@
 						
 							<li class="c-card__item c-card__item--brand">
 								<div class="dinline">Rotation: </div>						  
-								<input type="range" class="dinline c-range phoriaRotationRange" v-model="horizontalAngle" v-on:change="updateCameraRotationH" min="0" max="270" step="1">
+								<input type="range" class="dinline c-range phoriaRotationRange" v-model="horizontalAngle" v-on:input="updateCameraRotationH" v-on:change="updateCameraRotationH" min="0" max="270" step="1">
 							</li>
 							<li class="c-card__item c-card__item--brand">
 								<div class="dinline">V Rotation: </div>						  
-								<input type="range" class="dinline c-range phoriaRotationRange" v-model="verticalAngle" v-on:change="updateCameraRotationV" min="0" max="180" step="1">
+								<input type="range" class="dinline c-range phoriaRotationRange" v-model="verticalAngle"  v-on:input="updateCameraRotationV" v-on:change="updateCameraRotationV" min="0" max="180" step="1">
 							</li>
 						</ul>
 					</div>

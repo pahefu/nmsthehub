@@ -1,6 +1,6 @@
 // Created by pahefu @ 2017 
 // Update to include NMS Gamepedia Wiki
-// Update to include performance updates
+// Update to include performance updates (twice)
 
 var Class = function(methods) {   
 	var klass = function() {    
@@ -90,7 +90,7 @@ var phoriaHandler = {
 				drawmode: "wireframe"
 			},
 			
-		})
+		});
 		selectBox.position = [8000,8000,8000]; // Infinity and beyond!
 		selectBox.translate(selectBox.position);
 		scene.graph.push(selectBox);
@@ -213,7 +213,7 @@ var phoriaHandler = {
 	},
 	
 	generateStarField : function() {
-		var num = 2000; var scale = 5000;
+		var num = 500; var scale = 5000;
 		scale = scale || 1;
 		var s = scale / 2;
 		var points = [];
@@ -241,7 +241,7 @@ var phoriaHandler = {
 			scale = 2;
 		}
 		
-		var c = Phoria.Util.generateSphere(scale,24, 48);
+		var c = Phoria.Util.generateSphere(scale,3, 6);
 		var cube = Phoria.Entity.create({
 		  id: star.name,
 		  points: c.points,
@@ -249,9 +249,7 @@ var phoriaHandler = {
 		  polygons: c.polygons,
 		  style: {
 			diffuse: 1,
-			specular: 128,
 			drawmode: "wireframe",
-			shademode: "plain",
 			linewidth:0.5,
 			color: star.getStarColor()
 		  }
@@ -330,9 +328,8 @@ var regionHandler = {
 		
 		// Create new object
 		var mapObject = phoriaHandler.generateStar(star, undefined);
-		phoriaHandler.addToScene(mapObject);
 		star.mapObject = mapObject;
-		this.mapObjects.push(mapObject);
+		phoriaHandler.addToScene(mapObject);
 		this.stars.push(star);
 	},
 	
@@ -472,7 +469,6 @@ var systemSelectionApp = new Vue({
 	data:{
 		viewActive: true,
 		isTab : true,
-		privateData : undefined,
 		systemFilter : "",
 		visibleSystems : [],
 		currentPage : 0,
@@ -512,15 +508,17 @@ var systemSelectionApp = new Vue({
 		applyFilter : function(){
 			// Apply filters then gather info from current subview
 			
-			var localData = regionHandler.stars.slice();
-						
 			this.currentPage = 0; // Reset to 0
+			var localData = regionHandler.stars.slice();
+			
+			var localFilter = this.systemFilter.toLowerCase();
 			
 			var result = [];
 			for(var i = 0;i<localData.length;i++){
-				if(localData[i].name.toLowerCase().includes(this.systemFilter)
-					||
-				localData[i].getHexSolarId().toLowerCase().includes(this.systemFilter)){
+
+				if(	localData[i].name.toLowerCase().includes(localFilter) ||
+					localData[i].getHexSolarId().toLowerCase().includes(localFilter) 
+					) {
 					result.push(localData[i]);
 				}
 			}
@@ -541,13 +539,13 @@ var systemSelectionApp = new Vue({
 		}
 	}
 });
+systemSelectionApp.privateData = []; // Outside values, not watched by apps (a lot faster, low low memory footprint)
 
 var materialSelectionApp = new Vue({
 	el: "#materialSelectionApp",
 	data:{
 		viewActive: false,
 		isTab : true,
-		privateData : undefined,
 		systemFilter : "",
 		visibleSystems : [],
 		currentPage : 0,
@@ -609,6 +607,8 @@ var materialSelectionApp = new Vue({
 		}
 	}
 });
+materialSelectionApp.privateData = []; // Outside values, not watched by apps
+
 
 var drawPanelApp = new Vue({
 	el: "#drawPanelApp",
