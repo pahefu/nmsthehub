@@ -1,3 +1,6 @@
+// Created by pahefu @ 2017 
+// Update to include performance updates
+
 var colors = [
 	[232,213,49], // YELLOW_STAR
 	[246,108,98], // RED_STAR

@@ -1,5 +1,6 @@
 // Created by pahefu @ 2017 
 // Update to include NMS Gamepedia Wiki
+// Update to include performance updates
 
 var Class = function(methods) {   
 	var klass = function() {    
