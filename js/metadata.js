@@ -1,8 +1,8 @@
 var colors = [
-	[0xf1,0x7f,0x42], // YELLOW_STAR
-	[255,0,0], // RED_STAR
-	[0,255,0], // GREEN_STAR
-	[0,0,255], // BLUE_STAR
+	[232,213,49], // YELLOW_STAR
+	[246,108,98], // RED_STAR
+	[62,143,65], // GREEN_STAR
+	[9,102,175], // BLUE_STAR
 ];
 
 var races = ['Gek','Korvax','Vy\'keen'];
@@ -90,6 +90,7 @@ var loadMetaData = function(){
 }
 
 function loadDataFromWiki(){
+	systemSelectionApp.wikiLoading = true;
 	$.ajax({ 
 		url: 'https://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
 		dataType: 'jsonp',
@@ -123,8 +124,10 @@ function loadDataFromWiki(){
 					}
 				}
 			}
-			systemSelectionApp.applyFilter();
-			systemSelectionApp.refreshSystems();
+			
+			
+			systemSelectionApp.applyFilter(); // Autocalls system list refresh here
+			systemSelectionApp.wikiLoading = false;
 
 		}
 	});

@@ -72,7 +72,7 @@ var phoriaHandler = {
 			polygons: c.polygons,
 			style:{
 				color: [0xee,0xee,0xee],
-				opacity: 0.15 ,
+				//opacity: 0.15 ,
 				drawmode: "wireframe"
 			}
 		});
@@ -130,7 +130,7 @@ var phoriaHandler = {
 		var lx = this.camera.lookat.x 
 		var x = this.camera.position.x ;
 		var ly = this.camera.lookat.y 
-		var y= this.camera.position.y;
+		var y = this.camera.position.y;
 		var lz = this.camera.lookat.z 
 		var z = this.camera.position.z;
 		
@@ -160,6 +160,19 @@ var phoriaHandler = {
 		this.renderFrame();
 	},
 	
+	rotateCamXZDegree : function(degrees){
+		var variation = 0.0174533 * degrees;
+		var lx = this.camera.lookat.x 
+		var x = this.camera.position.x ;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.position.z;
+		var dist = Math.sqrt(Math.pow(lx-x, 2) + Math.pow(lz-z, 2) );
+		this.cameraAngleH = variation;
+		this.camera.position.x = lx + Math.cos(this.cameraAngleH)*dist;
+		this.camera.position.z = lz + Math.sin(this.cameraAngleH)*dist;
+		this.renderFrame();
+	},
+	
 	rotateCamYZ : function (up){
 		var variation = 0.0174533 * ((up) ? 1 : -1 );
 		var ly = this.camera.lookat.y 
@@ -168,6 +181,18 @@ var phoriaHandler = {
 		var z = this.camera.position.z;
 		var dist = Math.sqrt(Math.pow(ly-y, 2) + Math.pow(lz-z, 2) );
 		this.cameraAngleV -= variation;
+		this.camera.position.y = ly + Math.cos(this.cameraAngleV)*dist;
+		this.camera.position.z = lz + Math.sin(this.cameraAngleV)*dist;
+		this.renderFrame();
+	},
+	rotateCamYZDegree : function (degrees){
+		var variation = 0.0174533 * degrees;
+		var ly = this.camera.lookat.y 
+		var y = this.camera.position.y ;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.position.z;
+		var dist = Math.sqrt(Math.pow(ly-y, 2) + Math.pow(lz-z, 2) );
+		this.cameraAngleV = variation;
 		this.camera.position.y = ly + Math.cos(this.cameraAngleV)*dist;
 		this.camera.position.z = lz + Math.sin(this.cameraAngleV)*dist;
 		this.renderFrame();
@@ -235,9 +260,10 @@ var phoriaHandler = {
 		  showId: true,
 		  showAxis: false,
 		  showPosition: false,
+		  fillStyle : "#999999"
 	   });
 	   return cube;
-	},
+	}
 	
 };
 
@@ -272,7 +298,8 @@ var regionHandler = {
 			phoriaHandler.moveSelectBox(points[3].getPosArray());
 			phoriaHandler.camera.position = {x: 9999, y:9999, z: 9999 };
 			phoriaHandler.camera.lookat = {x: 0, y:0, z: 0 };
-			phoriaHandler.renderFrame();
+			// Try to render less, to speed first time loading
+			//phoriaHandler.renderFrame();
 		}
 
 	},
@@ -311,13 +338,13 @@ var regionHandler = {
 	addPseudoStar: function (solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
 		var ids = blobids.split("|");
 		var distances = blobdistances.replace(/,/g , ".").split("|");
-
 		var trilatePoints = [];
+		var NMS_SCALE_DIFFERENCE = 4.0;
 		
 		for(var i = 0;i<ids.length;i++){
 			ids[i] = parseInt(ids[i],16);
 			distances[i] = Number(distances[i]); 
-			if(distances[i]<100000) { distances[i] /= 4.0; } // NMS error labeling
+			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS error labeling
 			
 			for(var j = 0;j<this.stars.length;j++){
 				if(this.stars[j].solarIndex == ids[i]){
@@ -347,10 +374,10 @@ var regionHandler = {
 
 		results.forEach(function(r){
 			r.error1 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[0])) - distances[0]);
-			r.error2 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[1]))*4.0 - distances[1]*4.0);
-			r.error3 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[2]))*4.0 - distances[2]*4.0);
-			r.error4 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[3]))*4.0 - distances[3]*4.0);		
-			r.errormean = (r.error1+r.error2+r.error3+r.error4)/4.0;			
+			r.error2 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[1]))*NMS_SCALE_DIFFERENCE - distances[1]*NMS_SCALE_DIFFERENCE);
+			r.error3 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[2]))*NMS_SCALE_DIFFERENCE - distances[2]*NMS_SCALE_DIFFERENCE);
+			r.error4 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[3]))*NMS_SCALE_DIFFERENCE - distances[3]*NMS_SCALE_DIFFERENCE);		
+			r.errormean = (r.error1+r.error2+r.error3+r.error4)/NMS_SCALE_DIFFERENCE;			
 		});
 		
 		results.sort(function(a,b){
@@ -365,15 +392,27 @@ var regionHandler = {
 			if(i==0){
 				regionHandler.addStar(new Star(solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId));
 			}
-			
 			i++;
 		});
 		
-		
 		return;
-
 	},
 
+	updateLabels : function (labelType){
+		for(var i = 0;i<this.stars.length;i++){
+			var localStr = " ";
+			switch(labelType){
+				case 0: localStr = " "; break;
+				case 1: localStr = this.stars[i].name; break;
+				case 2: localStr = this.stars[i].getHexSolarId(); break;
+				case 3: localStr = this.stars[i].getHexSolarId() + " - " + this.stars[i].name; break;
+			}
+			
+			this.stars[i].mapObject.id= localStr;
+		}
+		phoriaHandler.renderFrame();
+	},
+	
 	lookAt : function(solarIndex){
 		solarIndex = Number(solarIndex);
 		if (isNaN(solarIndex)){
@@ -432,13 +471,14 @@ var systemSelectionApp = new Vue({
 	data:{
 		viewActive: true,
 		isTab : true,
-		privateData : regionHandler.stars,
+		privateData : undefined,
 		systemFilter : "",
 		visibleSystems : [],
 		currentPage : 0,
 		currentHumanPage : 1,
 		maxPages : 1,
-		maxPerPage : 5
+		maxPerPage : 5,
+		wikiLoading : false
 	},
 	methods:{
 		prevPage : function(){
@@ -470,17 +510,20 @@ var systemSelectionApp = new Vue({
 		},	 
 		applyFilter : function(){
 			// Apply filters then gather info from current subview
-			this.privateData = regionHandler.stars.slice();
+			
+			var localData = regionHandler.stars.slice();
+						
 			this.currentPage = 0; // Reset to 0
 			
 			var result = [];
-			for(var i = 0;i<this.privateData.length;i++){
-				if(this.privateData[i].name.toLowerCase().includes(this.systemFilter)
+			for(var i = 0;i<localData.length;i++){
+				if(localData[i].name.toLowerCase().includes(this.systemFilter)
 					||
-				this.privateData[i].getHexSolarId().toLowerCase().includes(this.systemFilter)){
-					result.push(this.privateData[i]);
+				localData[i].getHexSolarId().toLowerCase().includes(this.systemFilter)){
+					result.push(localData[i]);
 				}
 			}
+			
 			this.privateData = result;
 			this.sortById("solarIndex");
 			this.refreshSystems();
@@ -503,7 +546,7 @@ var materialSelectionApp = new Vue({
 	data:{
 		viewActive: false,
 		isTab : true,
-		privateData : regionHandler.stars,
+		privateData : undefined,
 		systemFilter : "",
 		visibleSystems : [],
 		currentPage : 0,
@@ -565,6 +608,30 @@ var materialSelectionApp = new Vue({
 		}
 	}
 });
+
+var drawPanelApp = new Vue({
+	el: "#drawPanelApp",
+	data:{
+		horizontalAngle: 90,
+		verticalAngle: 90,
+		labelType: 1
+	},
+	methods:{
+		
+		updateCameraRotationH : function(){
+			phoriaHandler.rotateCamXZDegree(this.horizontalAngle);
+		},
+		updateCameraRotationV : function(){
+			phoriaHandler.rotateCamYZDegree(this.verticalAngle);
+		},
+		updateLabels: function(){
+			regionHandler.updateLabels(Number(this.labelType));
+		}
+
+	}
+});
+
+/* Auto Bindings */
 
 $("#systemFilterTexBox").keyup(function(event){
 	systemSelectionApp.applyFilter();

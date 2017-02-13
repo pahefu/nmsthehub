@@ -16,10 +16,8 @@
 		<script src="./js/phoria-min.js"></script>
 		<script src="./js/trilateration.js"></script>
 		
-		<script src="./js/vue.min.js"></script>
-		
+		<script src="./js/vue.min.js"></script>	
 		<script src="./js/zepto.min.js"></script>
-		<script src="./js/mustache.min.js"></script>
 		<script src="./js/metadata.js"></script>
 
 		<title>NMS The HUB: Management System</title>
@@ -39,10 +37,9 @@
 				phoriaHandler.initialize("canvas","canvasParent");
 				regionHandler.initialize();
 				
-				loadMetaData();
+				loadMetaData(); // Local metadata loading
 
 				systemSelectionApp.applyFilter();
-				systemSelectionApp.refreshSystems();
 
 				loadDataFromWiki(); // Here we load the data
 				
@@ -64,7 +61,7 @@
 				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.png"/></li>
 				<li class="c-nav__content nopadding">
 					NMS The Hub Management System 
-					<span class="c-badge c-badge--brand">v.0.2</span>
+					<span class="c-badge c-badge--brand">v.0.3</span>
 				</li>
 			</ul>
 
@@ -86,9 +83,15 @@
 							<!-- System selection APP -->
 							<div id="systemSelectionApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
 								
-								<div class="paneltitle" >System selection</div>
+								<div class="paneltitle" >System selection</div> 
+								
+								<div class="c-alert c-alert--brand" v-show="wikiLoading">
+									Loading data from wiki ...
+								</div>
+								
 								<div>Click on a system name to see it or type below to filter the list in real time</div>
-								<input type="text" class="c-field" id="systemFilterTexBox" v-model="systemFilter">
+								<input type="text" class="c-field" id="systemFilterTexBox" v-model="systemFilter" :disabled="wikiLoading">
+								
 								<div id="listGridParent">
 									<table id="systemGridTable" class="c-table">
 										<thead class="c-table__head">
@@ -114,8 +117,8 @@
 									<div id="systemListFooter" v-if="visibleSystems.length>0">
 										<hr/>
 										<div> Page {{currentPage +1 }} of {{maxPages}}   
-											<i class="icon-left-open pageleft" title="previous" v-on:click="prevPage"> </i> 
-											<i class="icon-right-open pageright" title="next"  v-on:click="nextPage"> </i> 
+											<button class="c-button icon-left-open u-small" title="previous" v-on:click="prevPage"> </button> 
+											<button class="c-button icon-right-open u-small" title="next"  v-on:click="nextPage"> </button> 
 										</div>
 									</div>
 								</div>
@@ -163,10 +166,9 @@
 									
 									<div class="paneltitle">Associated systems</div>
 									
+									<!-- Material result -->
 									<div id="materialGridParent">
-										<!-- Material result -->
-										
-										
+
 										<!-- Material sources -->
 										<div v-if="selectedMat!=undefined">
 											<!-- Visible table -->
@@ -195,8 +197,8 @@
 												<hr/>
 											
 												<div> Page {{currentPage +1 }} of {{maxPages}}   
-													<i class="icon-left-open pageleft" title="previous" v-on:click="prevPage"> </i> 
-													<i class="icon-right-open pageright" title="next"  v-on:click="nextPage"> </i> 
+													<button class="c-button icon-left-open u-small" title="previous" v-on:click="prevPage"> </button> 
+													<button class="c-button icon-right-open u-small" title="next"  v-on:click="nextPage"> </button> 
 												</div>
 										
 											</div>
@@ -208,10 +210,8 @@
 													<div class="centered"><strong>Available in all planets</strong></div>
 												</div>
 											</div>
-											
-											
-										</div>
-										
+
+										</div>										
 									</div>
 								</div>
 							</div>
@@ -221,16 +221,39 @@
 					
 					<div id="poweredBy">
 						<div class="poweredByContent">
-								Powered by NMS Wiki at 
-								<a class="poweredByContent" href="http://nomanssky.gamepedia.com">
-									<img src="http://nomanssky.gamepedia.com/skins/Hydra/images/netbar/logo-fallback.png" alt="Gamepedia wiki"/>
-								</a>
+							Powered by NMS Wiki at 
+							<a class="poweredByContent" href="http://nomanssky.gamepedia.com">
+								<img src="http://nomanssky.gamepedia.com/skins/Hydra/images/netbar/logo-fallback.png" alt="Gamepedia wiki"/>
+							</a>
 						</div>						
 					</div>
 				</div>
 								
-				<div id="rightpanel" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-60@small">
+				<div id="drawPanelApp" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-60@small">
+					<div id="canvasControls">
+						<ul class="c-card c-card--menu">
+							<li class="c-card__item c-card__item--brand">
+								<div class="dinline">Showing: </div>								  
+								<select class="c-field dinline" id="phoriaLabelSelect" v-model="labelType" v-on:change="updateLabels">
+									<option class="phoriaLabelOption" value="1" selected>Names</option>
+									<option class="phoriaLabelOption" value="2">IDS</option>
+									<option class="phoriaLabelOption" value="3">Mixed</option>
+									<option class="phoriaLabelOption" value="0">None</option>
+								</select>
+							</li>
+						
+							<li class="c-card__item c-card__item--brand">
+								<div class="dinline">Rotation: </div>						  
+								<input type="range" class="dinline c-range phoriaRotationRange" v-model="horizontalAngle" v-on:change="updateCameraRotationH" min="0" max="270" step="1">
+							</li>
+							<li class="c-card__item c-card__item--brand">
+								<div class="dinline">V Rotation: </div>						  
+								<input type="range" class="dinline c-range phoriaRotationRange" v-model="verticalAngle" v-on:change="updateCameraRotationV" min="0" max="180" step="1">
+							</li>
+						</ul>
+					</div>
 					<div id="canvasParent">
+
 						<div id="canvasButtonParent">
 							<span class="c-input-group">
 								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(true);"><i class="icon-zoom-in"></i></button>
@@ -246,13 +269,15 @@
 							</span>
 							
 						</div>
+
+						<!-- Real canvas rendering here -->
 						<canvas id="canvas" ></canvas>
+						<!-- End of Canvas rendering -->
 					</div>
 				</div>
 			</div>
 		</div>
-	
-	
+
 		<script src="./js/rdl.js"></script>
 
 	</body>

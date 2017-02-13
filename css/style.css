@@ -130,3 +130,30 @@ table{
 	height:100%;
 	vertical-align:middle;
 }
+
+#canvasControls{
+	max-width:300px;
+}
+
+.dinline{
+	display:inline-table;
+	vertical-align: middle;
+}
+
+.phoriaRotationRange{
+	max-width:200px; 
+	background-color: inherit;
+}
+
+#phoriaLabelSelect{
+	color:#ffffff; 
+	width:120px; 
+	height:37px; 
+	border:none;
+	background-color: #inherit;
+}
+
+.phoriaLabelOption{
+	background-color: #2c3e50;
+}
+
