@@ -100,7 +100,7 @@ function loadDataFromWiki(){
 		dataType: 'jsonp',
 		success: function(data) {
 			var externalData = data.parse.wikitext["*"].split("\n\n");
-			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\" ([A-Za-z]+) ([A-Za-z]+)");
+			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\"@PS4 \"([^]+)\"@PC ([A-Za-z]+) ([A-Za-z]+)");
 			var systemColors = "yrgb";
 			var systemRaces = "gkv";
 			for(var i = 0; i< externalData.length;i++){
@@ -111,7 +111,8 @@ function loadDataFromWiki(){
 					if(line_1!=null){
 						var offset = 2;
 						systemSolarIndex = fromHex(line_1[offset++]);
-						systemName = line_1[offset++];
+						systemNamePs4 = line_1[offset++];
+						systemNamePc = line_1[offset++];
 						systemColor = systemColors.indexOf(line_1[offset++].toLowerCase()[0]); 
 						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
 						//console.log(systemSolarIndex, systemName, systemColor, systemRace);
@@ -121,7 +122,7 @@ function loadDataFromWiki(){
 						
 						//console.log(distanceIds, distanceValues);
 						
-						regionHandler.addPseudoStar(systemSolarIndex,systemName,systemColor,systemRace, distanceIds, distanceValues);
+						regionHandler.addPseudoStar(systemSolarIndex,systemNamePs4,systemColor,systemRace, distanceIds, distanceValues);
 						
 					}else{
 						console.log("Failed to parse line: ", systemInfo[0])
