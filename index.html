@@ -62,7 +62,7 @@
 				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.png"/></li>
 				<li class="c-nav__content nopadding">
 					NMS The Hub Management System 
-					<span class="c-badge c-badge--brand">v.0.3.1</span>
+					<span class="c-badge c-badge--brand">v.0.4</span>
 				</li>
 			</ul>
 
@@ -78,7 +78,10 @@
 								</div>
 								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewMaterials }" id="materialsTab" v-on:click="showMaterials">
 									<i class="icon-chart-line"></i> Materials list
-								</div>								
+								</div>	
+								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewSettings }" id="materialsTab" v-on:click="showSettings">
+									<i class="icon-space-shuttle"></i> Settings
+								</div>										
 							</div>
 							
 							<!-- System selection APP -->
@@ -91,7 +94,9 @@
 								</div>
 								
 								<div>Click on a system name to see it or type below to filter the list in real time</div>
+								
 								<input type="text" class="c-field" id="systemFilterTexBox" v-model="systemFilter" :disabled="wikiLoading">
+								<div class="c-hint" style="position:inherit;">Special filters available: <strong>race:Initial letter</strong> and <strong>color:Initial letter</strong> (i.e race:g , color:y)</div>
 								
 								<div id="listGridParent">
 									<table id="systemGridTable" class="c-table">
@@ -107,7 +112,7 @@
 											<template v-for="system of visibleSystems">
 												<tr class="gridStarRow c-table__row">
 													<td class="c-table__cell">{{system.getHexSolarId()}}</td>
-													<td class="c-table__cell gridStarName" :id='"#sys_"+system.solarIndex' v-on:click="showSystem" >{{system.name}}</td>
+													<td class="c-table__cell gridStarName" :id='"#sys_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
 													<td class="c-table__cell"><div class="gridStarColor" :style="system.getBgColor()"></div></td>
 													<td class="c-table__cell">{{system.getRaceName()}}</td>
 												</tr>
@@ -184,7 +189,7 @@
 														<template v-for="system of visibleSystems">
 															<tr class="gridStarRow c-table__row">
 																<td class="c-table__cell">{{system.solarIndexHex}}</td>
-																<td class="gridStarName c-table__cell" :id='"#matsys_"+system.solarIndex' v-on:click="showSystem" >{{system.name}}</td>
+																<td class="gridStarName c-table__cell" :id='"#matsys_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
 																<td class="c-table__cell">
 																	<div v-if="system.inStation">In space station</div>
 																	<div v-else>In planet</div>
@@ -217,6 +222,33 @@
 								</div>
 							</div>
 							<!-- End of material list APP -->
+							
+							<!-- Settings APP -->
+							<div id="settingsPanelApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
+							
+								<fieldset class="o-fieldset">
+									<div class="c-input-group">
+									  <button class="c-button c-button--brand">Platform</button>
+									  <div class="o-field">
+										<select class="c-field" v-model="current_platform" v-on:change="applySettings">
+											<option value="1" selected>PS4</option>
+											<option value="2">PC</option>
+										</select>
+									  </div>
+									</div>
+								</fieldset>
+								
+								<fieldset class="o-fieldset">
+									<div class="c-input-group">
+									  <button class="c-button c-button--brand">Items per page</button>
+									  <div class="o-field">
+										<input type="text" class="c-field" v-model="items_per_page" v-on:change="applySettings">
+									  </div>
+									</div>
+								</fieldset>
+							
+							</div>
+							<!-- End of settings APP -->
 						</div>
 					</div>
 					

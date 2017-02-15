@@ -1,13 +1,16 @@
 // Created by pahefu @ 2017 
 // Update to include performance updates (even more)
 
+
+
 var colors = [
 	[232,213,49], // YELLOW_STAR
 	[246,108,98], // RED_STAR
 	[62,143,65], // GREEN_STAR
 	[9,102,175], // BLUE_STAR
 ];
-
+var systemColors = "yrgb";
+var systemRaces = "gkv";
 var races = ['Gek','Korvax','Vy\'keen'];
 
 function toHex(str, totalChars){
@@ -101,8 +104,7 @@ function loadDataFromWiki(){
 		success: function(data) {
 			var externalData = data.parse.wikitext["*"].split("\n\n");
 			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\"@PS4 \"([^]+)\"@PC ([A-Za-z]+) ([A-Za-z]+)");
-			var systemColors = "yrgb";
-			var systemRaces = "gkv";
+			
 			for(var i = 0; i< externalData.length;i++){
 				if(externalData[i].indexOf("SystemData")>=0){ // Only if data present
 					var systemInfo = externalData[i].split("\n");
@@ -110,19 +112,18 @@ function loadDataFromWiki(){
 					var line_1 = systemDataRe.exec(systemInfo[0]);
 					if(line_1!=null){
 						var offset = 2;
-						systemSolarIndex = fromHex(line_1[offset++]);
-						systemNamePs4 = line_1[offset++];
-						systemNamePc = line_1[offset++];
+						var systemSolarIndex = fromHex(line_1[offset++]);
+						var namePack = {
+							ps4 : line_1[offset++],
+							pc : line_1[offset++]
+						};
 						systemColor = systemColors.indexOf(line_1[offset++].toLowerCase()[0]); 
 						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
-						//console.log(systemSolarIndex, systemName, systemColor, systemRace);
-						
+												
 						var distanceIds = systemInfo[1].split(" ").slice(1).join("|");
 						var distanceValues = systemInfo[2].split(" ").slice(1).join("|");
 						
-						//console.log(distanceIds, distanceValues);
-						
-						regionHandler.addPseudoStar(systemSolarIndex,systemNamePs4,systemColor,systemRace, distanceIds, distanceValues);
+						regionHandler.addPseudoStar(systemSolarIndex,namePack,systemColor,systemRace, distanceIds, distanceValues);
 						
 					}else{
 						console.log("Failed to parse line: ", systemInfo[0])

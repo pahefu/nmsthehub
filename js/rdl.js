@@ -2,6 +2,8 @@
 // Update to include NMS Gamepedia Wiki
 // Update to include performance updates (twice)
 
+
+// class definition, reusage later
 var Class = function(methods) {   
 	var klass = function() {    
 		this.initialize.apply(this, arguments);          
@@ -16,10 +18,17 @@ var Class = function(methods) {
 	return klass;    
 };
 
+// HMS Variable instances
+var nms_platforms = {
+	PLAT_PS4 : 1,
+	PLAT_PC : 2
+}
+
+// Stars and handlers
+
 var Star = Class({
 	initialize: function(solarIndex,name,x,y,z, starColorIndex,  raceId){
 		this.solarIndex = solarIndex;
-		this.name = name;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -27,7 +36,9 @@ var Star = Class({
 		this.mapObject = undefined;
 		this.metadata = {
 			race : raceId,
-			// Include metadata here
+			name : name,
+			fullyExplored : false
+			// Include further metadata here
 		};
 	},
 	getBgColor : function () { return "background-color:rgb("+this.getStarColor()+");"; },
@@ -35,7 +46,13 @@ var Star = Class({
 	getHexSolarId : function() { return toHex(this.solarIndex,4); },
 	getRaceName : function() { return races[this.metadata.race]; },
 	getPosArray : function(){ return [this.x, this.y, this.z]; },
-	getPosVector : function() { return {x:this.x, y:this.y, z:this.z}; }
+	getPosVector : function() { return {x:this.x, y:this.y, z:this.z}; },
+	getName : function(){
+		if(settingsPanelApp.current_platform == nms_platforms.PLAT_PS4){
+			return this.metadata.name.ps4;
+		}
+		return this.metadata.name.pc;
+	}
 });
 
 var phoriaHandler = {
@@ -243,7 +260,7 @@ var phoriaHandler = {
 		
 		var c = Phoria.Util.generateSphere(scale,3, 6);
 		var cube = Phoria.Entity.create({
-		  id: star.name,
+		  id: star.getName(),
 		  points: c.points,
 		  edges: c.edges,
 		  polygons: c.polygons,
@@ -274,14 +291,14 @@ var regionHandler = {
 		
 		// Populate the pointers base
 		var points = [
-			new Star(0,'Galaxy center',-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
-			new Star(0x124,'CoolJungle', 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
-			new Star(0x1b4,'LizardWorld',20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
-			new Star(0x999,'Hub',20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
-			new Star(0xFE,'Faith',20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
-			new Star(0x17F,'SouthernLight',20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
-			new Star(0x74,'FistOfTheNorth',20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
-			new Star(0x79,'BlackHole',20845.021929809347, 45.91480267460992, 4.886646137508365, 0,2)
+			new Star(0,{ps4 :'Galaxy center', pc: 'Galaxy center'},-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
+			new Star(0x124,{ps4 :'CoolJungle', pc: 'CoolJungle'}, 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
+			new Star(0x1b4,{ps4 :'LizardWorld', pc: 'LizardWorld'},20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
+			new Star(0x999,{ps4 :'Hub', pc: 'Hub'},20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
+			new Star(0xFE,{ps4 :'Faith', pc: 'Faith'},20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
+			new Star(0x17F,{ps4 :'SouthernLight', pc: 'SouthernLight'},20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
+			new Star(0x74,{ps4 :'FistOfTheNorth', pc: 'FistOfTheNorth'},20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
+			new Star(0x79,{ps4 :'BlackHole', pc: 'BlackHole'},20845.021929809347, 45.91480267460992, 4.886646137508365, 0,2)
 		];
 		
 		// Force HUB as center of the region
@@ -401,9 +418,9 @@ var regionHandler = {
 			var localStr = " ";
 			switch(labelType){
 				case 0: localStr = " "; break;
-				case 1: localStr = this.stars[i].name; break;
+				case 1: localStr = this.stars[i].getName(); break;
 				case 2: localStr = this.stars[i].getHexSolarId(); break;
-				case 3: localStr = this.stars[i].getHexSolarId() + " - " + this.stars[i].name; break;
+				case 3: localStr = this.stars[i].getHexSolarId() + " - " + this.stars[i].getName(); break;
 			}
 			
 			this.stars[i].mapObject.id= localStr;
@@ -433,12 +450,17 @@ var regionHandler = {
 	
 };
 
+/* UI Elements 
+	// Usage as element changes
+*/
+
 var uiSelectionApp = new Vue({
 	el: '#uiSelectionApp',
 	data: {
 		isTab : true,
 		viewSystemList : true,
 		viewMaterials: false,
+		viewSettings: false,
 		viewChangeCallbacks : Array(),
 		
 	},
@@ -449,15 +471,46 @@ var uiSelectionApp = new Vue({
 			}
 			systemSelectionApp.viewActive = this.viewSystemList;
 			materialSelectionApp.viewActive = this.viewMaterials;
+			settingsPanelApp.viewActive = this.viewSettings;
 		},
 		showSystemList : function(){
 			this.viewSystemList = true;
 			this.viewMaterials = false;
+			this.viewSettings = false;
 			this.runCallbacks();
 		},
 		showMaterials : function(){
 			this.viewSystemList = false;
 			this.viewMaterials = true;
+			this.viewSettings = false;
+			this.runCallbacks();
+		},
+		showSettings : function(){
+			this.viewSystemList = false;
+			this.viewMaterials = false;
+			this.viewSettings = true;
+			this.runCallbacks();
+		}
+	}
+	
+});
+
+var settingsPanelApp = new Vue({
+	el: '#settingsPanelApp',
+	data: {
+		viewActive: false,
+		isTab : true,
+		current_platform : nms_platforms.PLAT_PS4,
+		items_per_page : 5,
+		changeCallbacks : [],
+	},
+	methods:{
+		runCallbacks : function () {
+			for(var i = 0; i < this.changeCallbacks.length; i++){
+				this.changeCallbacks[i](); // Run it
+			}
+		},
+		applySettings : function(){
 			this.runCallbacks();
 		}
 	}
@@ -474,10 +527,14 @@ var systemSelectionApp = new Vue({
 		currentPage : 0,
 		currentHumanPage : 1,
 		maxPages : 1,
-		maxPerPage : 5,
+		maxPerPage : settingsPanelApp.items_per_page,
 		wikiLoading : false
 	},
 	methods:{
+		maxPerPageChange : function (){
+			this.maxPerPage = settingsPanelApp.items_per_page;
+			this.refreshSystems();
+		},
 		prevPage : function(){
 			if (this.currentPage>0){
 				this.currentPage--;
@@ -516,11 +573,14 @@ var systemSelectionApp = new Vue({
 			var result = [];
 			for(var i = 0;i<localData.length;i++){
 
-				if(	localData[i].name.toLowerCase().includes(localFilter) ||
-					localData[i].getHexSolarId().toLowerCase().includes(localFilter) 
+				if(	localData[i].getName().toLowerCase().includes(localFilter) ||
+					localData[i].getHexSolarId().toLowerCase().includes(localFilter) ||
+					("race:"+(localData[i].getRaceName().toLowerCase())[0]) == (localFilter) ||
+					"color:"+(systemColors[localData[i].starColorIndex]) == (localFilter)
 					) {
 					result.push(localData[i]);
 				}
+
 			}
 			
 			this.privateData = result;
@@ -540,6 +600,7 @@ var systemSelectionApp = new Vue({
 	}
 });
 systemSelectionApp.privateData = []; // Outside values, not watched by apps (a lot faster, low low memory footprint)
+settingsPanelApp.changeCallbacks.push(systemSelectionApp.maxPerPageChange);
 
 var materialSelectionApp = new Vue({
 	el: "#materialSelectionApp",
@@ -551,7 +612,7 @@ var materialSelectionApp = new Vue({
 		currentPage : 0,
 		currentHumanPage : 1,
 		maxPages : 1,
-		maxPerPage : 5,
+		maxPerPage : settingsPanelApp.items_per_page,
 		selectedMat: undefined,
 		materials : []
 	},
@@ -609,7 +670,6 @@ var materialSelectionApp = new Vue({
 });
 materialSelectionApp.privateData = []; // Outside values, not watched by apps
 
-
 var drawPanelApp = new Vue({
 	el: "#drawPanelApp",
 	data:{
@@ -631,6 +691,7 @@ var drawPanelApp = new Vue({
 
 	}
 });
+settingsPanelApp.changeCallbacks.push(drawPanelApp.updateLabels);
 
 /* Auto Bindings */
 
