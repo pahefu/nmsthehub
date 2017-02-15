@@ -532,6 +532,7 @@ var systemSelectionApp = new Vue({
 	},
 	methods:{
 		maxPerPageChange : function (){
+			this.currentPage = 0;
 			this.maxPerPage = settingsPanelApp.items_per_page;
 			this.refreshSystems();
 		},
