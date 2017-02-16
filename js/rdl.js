@@ -133,8 +133,18 @@ var phoriaHandler = {
 	},
 	
 	resetCameraAngle : function(){
-		this.cameraAngleH = 1.5708;
-		this.cameraAngleV = 1.5708;
+		//this.cameraAngleH = 1.5708;
+		//this.cameraAngleV = 1.5708;
+		
+		drawPanelApp.horizontalAngle = 90;
+		drawPanelApp.verticalAngle = 90;
+		drawPanelApp.zoomValue = 0;
+		this.camera.unzoomedPosition  = {
+			x: this.camera.position.x, 
+			y: this.camera.position.y,
+			z: this.camera.position.z
+		};
+		
 	},
 	
 	doUpDownCamera :  function(up){
@@ -164,7 +174,27 @@ var phoriaHandler = {
 		
 		this.renderFrame();
 	},
-	
+
+	doZoomBar : function (value){
+		var lx = this.camera.lookat.x 
+		var x = this.camera.unzoomedPosition.x ;
+		var ly = this.camera.lookat.y 
+		var y = this.camera.unzoomedPosition.y;
+		var lz = this.camera.lookat.z 
+		var z = this.camera.unzoomedPosition.z;
+		
+		var step = value / 100.0;
+		
+		var dx = lx - x; dx*=step;
+		var dy = ly - y; dy*=step;
+		var dz = lz - z; dz*=step;
+
+		this.camera.position.x = this.camera.unzoomedPosition.x + dx;
+		this.camera.position.y = this.camera.unzoomedPosition.y + dy;
+		this.camera.position.z = this.camera.unzoomedPosition.z + dz;
+		
+		this.renderFrame();
+	},
 	rotateCamXZ : function (left){
 		var variation = 0.0174533 * ((left) ? 1 : -1 );
 		var lx = this.camera.lookat.x 
@@ -533,7 +563,7 @@ var systemSelectionApp = new Vue({
 	methods:{
 		maxPerPageChange : function (){
 			this.currentPage = 0;
-			this.maxPerPage = settingsPanelApp.items_per_page;
+			this.maxPerPage = Number(settingsPanelApp.items_per_page);
 			this.refreshSystems();
 		},
 		prevPage : function(){
@@ -676,6 +706,7 @@ var drawPanelApp = new Vue({
 	data:{
 		horizontalAngle: 90,
 		verticalAngle: 90,
+		zoomValue : 0,
 		labelType: 1
 	},
 	methods:{
@@ -685,6 +716,9 @@ var drawPanelApp = new Vue({
 		},
 		updateCameraRotationV : function(){
 			phoriaHandler.rotateCamYZDegree(this.verticalAngle);
+		},
+		updateZoom : function(){
+			phoriaHandler.doZoomBar(this.zoomValue);
 		},
 		updateLabels: function(){
 			regionHandler.updateLabels(Number(this.labelType));

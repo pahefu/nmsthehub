@@ -1,7 +1,7 @@
 <!doctype html>
 
 <!-- Created by pahefu @ 2017 -->
-<!-- Version review 0.3 -->
+<!-- Version review 0.4 -->
 <!-- Applied performance updates (twice) -->
 
 <html>
@@ -283,23 +283,15 @@
 								<div class="dinline">V Rotation: </div>						  
 								<input type="range" class="dinline c-range phoriaRotationRange" v-model="verticalAngle"  v-on:input="updateCameraRotationV" v-on:change="updateCameraRotationV" min="0" max="180" step="1">
 							</li>
+							<li class="c-card__item c-card__item--brand">
+								<div class="dinline">Zoom: </div>						  
+								<input type="range" class="dinline c-range phoriaRotationRange" v-model="zoomValue"  v-on:input="updateZoom" v-on:change="updateZoom" min="-100" max="100" step="1">
+							</li>
 						</ul>
 					</div>
 					<div id="canvasParent">
 
 						<div id="canvasButtonParent">
-							<span class="c-input-group">
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(true);"><i class="icon-zoom-in"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doZoom(false);"><i class="icon-zoom-out"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doUpDownCamera(true);"><i class="icon-up-bold"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.doUpDownCamera(false);"><i class="icon-down-bold"></i></button>
-							</span>
-							<span class="c-input-group">
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamXZ(true);"><i class="icon-left-big"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamYZ(true);"><i class="icon-up-big"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamYZ(false);"><i class="icon-down-big"></i></button>
-								<button class="materialbutton c-button u-medium"  onclick="phoriaHandler.rotateCamXZ(false);"><i class="icon-right-big"></i></button>
-							</span>
 							
 						</div>
 
