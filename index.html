@@ -43,15 +43,6 @@
 				systemSelectionApp.applyFilter();
 
 				loadDataFromWiki(); // Here we load the data
-				
-				/*var pause = false;
-				var fnAnimate = function() {
-				  if (!pause){
-					 phoriaHandler.scene.modelView();
-					 phoriaHandler.renderer.render(phoriaHandler.scene);
-				  }
-				  requestAnimFrame(fnAnimate);
-				};*/
 			}
 
 		</script>
@@ -102,6 +93,7 @@
 									<table id="systemGridTable" class="c-table">
 										<thead class="c-table__head">
 											<tr class="c-table__row c-table__row--heading">
+												<th class="c-table__cell">Region ID</th>
 												<th class="c-table__cell">ID</th>
 												<th class="c-table__cell">Name</th>
 												<th class="c-table__cell">Color</th>
@@ -111,6 +103,7 @@
 										<tbody class="c-table__body">
 											<template v-for="system of visibleSystems">
 												<tr class="gridStarRow c-table__row">
+													<td class="c-table__cell">{{system.regionId}}</td>
 													<td class="c-table__cell">{{system.getHexSolarId()}}</td>
 													<td class="c-table__cell gridStarName" :id='"#sys_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
 													<td class="c-table__cell"><div class="gridStarColor" :style="system.getBgColor()"></div></td>

@@ -27,7 +27,8 @@ var nms_platforms = {
 // Stars and handlers
 
 var Star = Class({
-	initialize: function(solarIndex,name,x,y,z, starColorIndex,  raceId){
+	initialize: function(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
+		this.regionId = regionId;
 		this.solarIndex = solarIndex;
 		this.x = x;
 		this.y = y;
@@ -41,6 +42,7 @@ var Star = Class({
 			// Include further metadata here
 		};
 	},
+	
 	getBgColor : function () { return "background-color:rgb("+this.getStarColor()+");"; },
 	getStarColor : function() { return colors[this.starColorIndex] },
 	getHexSolarId : function() { return toHex(this.solarIndex,4); },
@@ -321,14 +323,14 @@ var regionHandler = {
 		
 		// Populate the pointers base
 		var points = [
-			new Star(0,{ps4 :'Galaxy center', pc: 'Galaxy center'},-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
-			new Star(0x124,{ps4 :'CoolJungle', pc: 'CoolJungle'}, 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
-			new Star(0x1b4,{ps4 :'LizardWorld', pc: 'LizardWorld'},20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
-			new Star(0x999,{ps4 :'Hub', pc: 'Hub'},20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
-			new Star(0xFE,{ps4 :'Faith', pc: 'Faith'},20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
-			new Star(0x17F,{ps4 :'SouthernLight', pc: 'SouthernLight'},20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
-			new Star(0x74,{ps4 :'FistOfTheNorth', pc: 'FistOfTheNorth'},20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
-			new Star(0x79,{ps4 :'BlackHole', pc: 'BlackHole'},20845.021929809347, 45.91480267460992, 4.886646137508365, 0,2)
+			new Star(1,0,{ps4 :'Galaxy center', pc: 'Galaxy center'},-145762.8716783917, 0.019204677335472303, -0.00010293581164446534, 0,0),
+			new Star(1,0x124,{ps4 :'CoolJungle', pc: 'CoolJungle'}, 20825.72704688998, -19.202783753792243, -3.0805012641606018, 3,2),
+			new Star(1,0x1b4,{ps4 :'LizardWorld', pc: 'LizardWorld'},20818.927720684194, -12.418330391875925, 8.679687637891412, 3,2),
+			new Star(1,0x999,{ps4 :'Hub', pc: 'Hub'},20811.32748949516, -16.15057093374628, -5.244964575966744, 1,0),
+			new Star(1,0xFE,{ps4 :'Faith', pc: 'Faith'},20826.327571536, -15.405985004529528, -4.635964087619606, 3,1),
+			new Star(1,0x17F,{ps4 :'SouthernLight', pc: 'SouthernLight'},20797.12265919312, -43.269288425630926, 2.8450806637888504, 3,2),
+			new Star(1,0x74,{ps4 :'FistOfTheNorth', pc: 'FistOfTheNorth'},20838.417260783983, 60.512951161021306, -3.449881518159776, 0,1),
+			new Star(1,0x79,{ps4 :'BlackHole', pc: 'BlackHole'},20845.021929809347, 45.91480267460992, 4.886646137508365, 0,2)
 		];
 		
 		// Force HUB as center of the region
@@ -380,19 +382,36 @@ var regionHandler = {
 		this.stars.push(star);
 	},
 	
-	addPseudoStar: function (solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
+	addPseudoStar: function (regionId,solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
 		var ids = blobids.split("|");
 		var distances = blobdistances.replace(/,/g , ".").split("|");
 		var trilatePoints = [];
 		var NMS_SCALE_DIFFERENCE = 4.0;
 		
+		console.log(ids);
+		
 		for(var i = 0;i<ids.length;i++){
-			ids[i] = parseInt(ids[i],16);
+			
+			var hexId = 0;
+			var distanceRegion = 1;
+			
+			if(ids[i]!="0"){
+				var vals = ids[i].split("_");
+				hexId = parseInt(vals[0],16);
+				distanceRegion = Number(vals[1]);
+			}else{ // Center will be treated always as region 1
+				hexId = 0x00;
+				distanceRegion = 1;
+			}
+			ids[i] = hexId; // Hotfix
+			
+			console.log(hexId,distanceRegion);
+			
 			distances[i] = Number(distances[i]); 
-			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS error labeling
+			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS distanceDifference 
 			
 			for(var j = 0;j<this.stars.length;j++){
-				if(this.stars[j].solarIndex == ids[i]){
+				if(this.stars[j].solarIndex == hexId && this.stars[j].regionId == distanceRegion){
 					var tp = this.stars[j];
 					trilatePoints.push({x: tp.x, y:tp.y, z:tp.z, r: distances[i]});
 					break;
@@ -417,6 +436,8 @@ var regionHandler = {
 		if(pack3!=null){ pack3.forEach(function(a){ results.push(a) });	}
 		if(pack4!=null){ pack4.forEach(function(a){ results.push(a) });	}
 
+		
+		
 		results.forEach(function(r){
 			r.error1 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[0])) - distances[0]);
 			r.error2 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[1]))*NMS_SCALE_DIFFERENCE - distances[1]*NMS_SCALE_DIFFERENCE);
@@ -435,7 +456,7 @@ var regionHandler = {
 		var i = 0;
 		results.forEach(function(r){
 			if(i==0){
-				regionHandler.addStar(new Star(solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId));
+				regionHandler.addStar(new Star(regionId,solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId));
 			}
 			i++;
 		});

@@ -106,6 +106,7 @@ function loadDataFromWiki(){
 			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\"@PS4 \"([^]+)\"@PC ([A-Za-z]+) ([A-Za-z]+)");
 			
 			for(var i = 0; i< externalData.length;i++){
+				var regionId = 1;
 				if(externalData[i].indexOf("SystemData")>=0){ // Only if data present
 					var systemInfo = externalData[i].split("\n");
 					
@@ -120,10 +121,14 @@ function loadDataFromWiki(){
 						systemColor = systemColors.indexOf(line_1[offset++].toLowerCase()[0]); 
 						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
 												
-						var distanceIds = systemInfo[1].split(" ").slice(1).join("|");
-						var distanceValues = systemInfo[2].split(" ").slice(1).join("|");
+						// system region row
+						var regionId = Number(systemInfo[1].split(" ")[1]);
 						
-						regionHandler.addPseudoStar(systemSolarIndex,namePack,systemColor,systemRace, distanceIds, distanceValues);
+						// Next rows (distance data)
+						var distanceIds = systemInfo[2].split(" ").slice(1).join("|");
+						var distanceValues = systemInfo[3].split(" ").slice(1).join("|");
+						
+						regionHandler.addPseudoStar(regionId,systemSolarIndex,namePack,systemColor,systemRace, distanceIds, distanceValues);
 						
 					}else{
 						console.log("Failed to parse line: ", systemInfo[0])
