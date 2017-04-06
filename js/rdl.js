@@ -114,7 +114,7 @@ var phoriaHandler = {
 		selectBox.translate(selectBox.position);
 		scene.graph.push(selectBox);
 		this.selectBox = selectBox;
-		
+			
 		// Camera
 		this.camera = this.scene.camera; // Adjust the camera
 		
@@ -286,23 +286,48 @@ var phoriaHandler = {
 	
 	generateStar : function(star, parent){
 		var scale = 0.25;
-		if(star.solarIndex<0){
-			scale = 2;
-		}
 		
-		var c = Phoria.Util.generateSphere(scale,3, 6);
-		var cube = Phoria.Entity.create({
-		  id: star.getName(),
-		  points: c.points,
-		  edges: c.edges,
-		  polygons: c.polygons,
-		  style: {
-			diffuse: 1,
-			drawmode: "wireframe",
-			linewidth:0.5,
-			color: star.getStarColor()
-		  }
-		}).translateX(star.x).translateY(star.y).translateZ(star.z);
+		
+		var cube = undefined;
+		
+		if(star.solarIndex==0){
+			scale = 100;
+			var points = [];
+			points.push({x:0, y:0, z:0});
+			cube = Phoria.Entity.create({
+				id: star.getName(),
+				points: points,
+				style: {
+					color: star.getStarColor(),
+					drawmode: "point",
+					shademode: "plain",
+					linewidth: 2,
+					linescale: 80000,
+					objectsortmode: "back"
+				}
+			}).translateX(star.x).translateY(star.y).translateZ(star.z);
+		
+			
+		}else{
+			
+			var points = [];
+			points.push({x:0, y:0, z:0});
+			cube = Phoria.Entity.create({
+				id: star.getName(),
+				points: points,
+				style: {
+					color: star.getStarColor(),
+					drawmode: "point",
+					shademode: "plain",
+					linewidth: 0.5,
+					linescale: 50,
+					objectsortmode: "back"
+				}
+			}).translateX(star.x).translateY(star.y).translateZ(star.z);
+			
+		}
+	   
+	   
 	   
 	   Phoria.Entity.debug(cube, {
 		  showId: true,
@@ -375,6 +400,10 @@ var regionHandler = {
 		star.y-=this.regionCenter.y;
 		star.z-=this.regionCenter.z;
 		
+		if(star.solarIndex == 0){
+			console.log(star.x,star.y,star.z);
+		}
+		
 		// Create new object
 		var mapObject = phoriaHandler.generateStar(star, undefined);
 		star.mapObject = mapObject;
@@ -388,9 +417,11 @@ var regionHandler = {
 		var trilatePoints = [];
 		var NMS_SCALE_DIFFERENCE = 4.0;
 		
-		console.log(ids);
-		
 		for(var i = 0;i<ids.length;i++){
+			
+			if(ids[i].length==0){ // Solve spaces here
+				return;
+			}
 			
 			var hexId = 0;
 			var distanceRegion = 1;
@@ -404,11 +435,9 @@ var regionHandler = {
 				distanceRegion = 1;
 			}
 			ids[i] = hexId; // Hotfix
-			
-			console.log(hexId,distanceRegion);
-			
+				
 			distances[i] = Number(distances[i]); 
-			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS distanceDifference 
+			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS lineal distance is not distance 
 			
 			for(var j = 0;j<this.stars.length;j++){
 				if(this.stars[j].solarIndex == hexId && this.stars[j].regionId == distanceRegion){
@@ -479,14 +508,14 @@ var regionHandler = {
 		phoriaHandler.renderFrame();
 	},
 	
-	lookAt : function(solarIndex){
+	lookAt : function(regionId,solarIndex){
 		solarIndex = Number(solarIndex);
 		if (isNaN(solarIndex)){
 			return;
 		}
 		
 		for(var i = 0;i<this.stars.length;i++){
-			if(this.stars[i].solarIndex == solarIndex){
+			if(this.stars[i].solarIndex == solarIndex && this.stars[i].regionId ==regionId){
 				var s = this.stars[i];
 				phoriaHandler.camera.lookat = {x: s.x, y:s.y, z:s.z};
 				phoriaHandler.camera.position = {x: s.x, y:s.y, z:s.z+220};
@@ -644,9 +673,14 @@ var systemSelectionApp = new Vue({
 			this.visibleSystems = this.privateData.slice(this.currentPage*this.maxPerPage, this.currentPage*this.maxPerPage +this.maxPerPage);
 		},
 		showSystem : function(element){
-			if(element.target.id.indexOf("#sys_"!=-1)){
-				var i = Number(element.target.id.replace("#sys_",""));
-				regionHandler.lookAt(i);
+			var tag = "#sys_";
+			if(element.target.id.indexOf(tag!=-1)){
+				
+				var data = element.target.id.replace(tag,"").split("_");
+				var regionId = Number(data[0]);
+				var solarIndex = Number(data[1]);
+
+				regionHandler.lookAt(regionId,solarIndex);
 			}
 		}
 	}

@@ -122,7 +122,7 @@ function loadDataFromWiki(){
 						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
 												
 						// system region row
-						var regionId = Number(systemInfo[1].split(" ")[1]);
+						regionId = Number(systemInfo[1].split(" ")[1]);
 						
 						// Next rows (distance data)
 						var distanceIds = systemInfo[2].split(" ").slice(1).join("|");

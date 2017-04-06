@@ -1,7 +1,7 @@
 <!doctype html>
 
 <!-- Created by pahefu @ 2017 -->
-<!-- Version review 0.4 -->
+<!-- Version review 0.41 -->
 <!-- Applied performance updates (twice) -->
 
 <html>
@@ -53,7 +53,7 @@
 				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.png"/></li>
 				<li class="c-nav__content nopadding">
 					NMS The Hub Management System 
-					<span class="c-badge c-badge--brand">v.0.4</span>
+					<span class="c-badge c-badge--brand">v.0.4.1</span>
 				</li>
 			</ul>
 
@@ -105,7 +105,7 @@
 												<tr class="gridStarRow c-table__row">
 													<td class="c-table__cell">{{system.regionId}}</td>
 													<td class="c-table__cell">{{system.getHexSolarId()}}</td>
-													<td class="c-table__cell gridStarName" :id='"#sys_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
+													<td class="c-table__cell gridStarName" :id='"#sys_"+system.regionId+"_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
 													<td class="c-table__cell"><div class="gridStarColor" :style="system.getBgColor()"></div></td>
 													<td class="c-table__cell">{{system.getRaceName()}}</td>
 												</tr>
