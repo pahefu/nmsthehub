@@ -383,7 +383,7 @@ var regionHandler = {
             objectsortmode: "back"
          }
 		});
-		phoriaHandler.addToScene(lineToSun);
+		//phoriaHandler.addToScene(lineToSun);
 		
 		if(phoriaHandler.scene!=undefined){
 			phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
