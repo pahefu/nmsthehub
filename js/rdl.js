@@ -345,6 +345,7 @@ var regionHandler = {
 	initialize : function(){
 		this.stars = [];
 		this.mapObjects = [];
+		this.selectedStar = undefined;
 		
 		// Populate the pointers base
 		var points = [
@@ -364,6 +365,25 @@ var regionHandler = {
 		for(var i = 0;i<points.length;i++){
 			this.addStar(points[i]);
 		}
+		
+		var a = this.stars[0];
+		var b = this.stars[3];
+		var linep = [{x: a.x, y:a.y, z:a.z}, {x: b.x, y:b.y, z:b.z}];
+		var edges = [{a: 0, b: 1}];
+		
+		var lineToSun = Phoria.Entity.create({
+         points: linep,
+         edges: edges,
+         style: {
+            color: [255,128,64],
+            drawmode: "wireframe",
+            shademode: "plain",
+            linewidth: 2,
+            linescale: 1,
+            objectsortmode: "back"
+         }
+		});
+		phoriaHandler.addToScene(lineToSun);
 		
 		if(phoriaHandler.scene!=undefined){
 			phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
@@ -493,7 +513,7 @@ var regionHandler = {
 		return;
 	},
 
-	updateLabels : function (labelType){
+	updateLabels : function (labelType, max_label_length){
 		for(var i = 0;i<this.stars.length;i++){
 			var localStr = " ";
 			switch(labelType){
@@ -503,7 +523,15 @@ var regionHandler = {
 				case 3: localStr = this.stars[i].getHexSolarId() + " - " + this.stars[i].getName(); break;
 			}
 			
-			this.stars[i].mapObject.id= localStr;
+			if(max_label_length <= 0){
+				max_label_length = 9999;
+			}
+			
+			if(this.stars[i]!=regionHandler.selectedStar){
+				this.stars[i].mapObject.id = localStr.substr(0,max_label_length);
+			}else{
+				this.stars[i].mapObject.id = localStr;
+			}
 		}
 		phoriaHandler.renderFrame();
 	},
@@ -517,6 +545,7 @@ var regionHandler = {
 		for(var i = 0;i<this.stars.length;i++){
 			if(this.stars[i].solarIndex == solarIndex && this.stars[i].regionId ==regionId){
 				var s = this.stars[i];
+				this.selectedStar = s;
 				phoriaHandler.camera.lookat = {x: s.x, y:s.y, z:s.z};
 				phoriaHandler.camera.position = {x: s.x, y:s.y, z:s.z+220};
 				phoriaHandler.moveSelectBox(s.getPosArray());
@@ -582,6 +611,7 @@ var settingsPanelApp = new Vue({
 		isTab : true,
 		current_platform : nms_platforms.PLAT_PS4,
 		items_per_page : 5,
+		max_name_length : 0,
 		changeCallbacks : [],
 	},
 	methods:{
@@ -776,7 +806,7 @@ var drawPanelApp = new Vue({
 			phoriaHandler.doZoomBar(this.zoomValue);
 		},
 		updateLabels: function(){
-			regionHandler.updateLabels(Number(this.labelType));
+			regionHandler.updateLabels(Number(this.labelType),settingsPanelApp.max_name_length);
 		}
 
 	}
