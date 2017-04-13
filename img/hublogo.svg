@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Pahefu @ 2017 -->
+<!-- Inspired by original creation of /u/morgvom_org at https://morgvom.org -->
+<svg width="288" height="288" viewBox="0 0 288 288" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
+<g transform="translate(-78 -82)">
+	<g id="Diplo">
+		<circle cx="221" cy="227" r="138" fill="#3cb5a9" stroke="white" stroke-width="7px"/>
+
+		<!-- Planets -->
+		<circle cx="206" cy="228" r="26" style="fill:white;stroke:white"/>
+		<circle cx="247" cy="181" r="62" style="fill:white;stroke:rgb(62,181,169); stroke-width:3px"/>
+
+		<!-- Star -->
+		<path id="star" d="M151 132 145 183 159 176 151 189 166 191 152 197 163 208 148 205 150 220 140 208 128 250 132 207 118 214 126 201 111 198 125 192 114 181 129 185 127 170 137 181 151 132" fill="white"/>
+		
+		<!-- Diplo -->
+		<path stroke-linecap="round" stroke-linejoin="round" d="M185 295 C221 267 245 271 259 275
+		S270 249  318 249	S343 318 268 306 L281 307	C256 311 247 329 249 342 S249 349 	247 359		L229 362 233 352 226 333 219 335C 219 343  205 354 211 362 
+		L199 360 Q208 312 184 356 L175 355 179 334	C159 313  145 297  140 282 S112 276 127 290 C 131 296  126 302 120 296 L115 298 C114 297  113 292 
+		116 287 C113 261 135 265 147 274 C169 299 173 306 185 295
+		" fill="white"></path>
+	
+		<path stroke-linecap="round" stroke-linejoin="round" fill="#3cb5a9" d="M276 274 C289 260 318 256 328 266 S 298 277 294 276 S 287 275 276 274"></path>
+    </g>
+
+	<g fill="white">
+		<!-- Small planets -->
+		<circle cx="163" cy="258" r="5.5" />
+		<circle cx="105" cy="237" r="3" />
+		<circle cx="186" cy="125" r="4.5"/>
+		<circle cx="333" cy="184" r="4" />
+		<circle cx="345" cy="206" r="5.5" />
+		<circle cx="310" cy="238" r="3.5" />
+	</g>
+</g>	
+</svg>
