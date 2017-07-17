@@ -79,7 +79,7 @@ var loadMetaData = function(){
 
 	/* Materials metadata */
 
-	materials.addSource(1,0x12b, false,"");
+/*	materials.addSource(1,0x12b, false,"");
 	materials.addSource(5,0x12b, false,"");
 	materials.addSource(8,0x184, false,"");
 	materials.addSource(9,0x150, false,"");
@@ -92,7 +92,9 @@ var loadMetaData = function(){
 	materials.addSource(16,0xdd,true,"Buy at Merchants");
 	
 	// Show the info to the current values
-	materialSelectionApp.materials = materials.data;	
+	materialSelectionApp.materials = materials.data;	*/
+	
+	
 }
 
 function loadDataFromWiki(){
