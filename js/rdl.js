@@ -1,22 +1,20 @@
 // Created by pahefu @ 2017 
-// Update to include NMS Gamepedia Wiki
-// Update to include performance updates (twice)
+// Update to overhaul all the UI
 
+/* Initialization */
 
-// class definition, reusage later
-var Class = function(methods) {   
-	var klass = function() {    
-		this.initialize.apply(this, arguments);          
-	};  
-	
-	for (var property in methods) { 
-	   klass.prototype[property] = methods[property];
-	}
-		  
-	if (!klass.prototype.initialize) klass.prototype.initialize = function(){};      
-	
-	return klass;    
-};
+$('.menuitem').click(function(){
+   $(".menuitem").removeClass("active");
+   $(".page").removeClass("active");
+   $(this).addClass("active");
+   $("#"+$(this).attr("rel")).addClass("active");
+});
+
+rivets.configure({
+	templateDelimiters: ['{{', '}}']
+});
+rivets.formatters.plus = function(item,plus) {return item+plus };
+
 
 // HMS Variable instances
 var nms_platforms = {
@@ -24,38 +22,40 @@ var nms_platforms = {
 	PLAT_PC : 2
 }
 
+/* Main code */
+
 // Stars and handlers
 
-var Star = Class({
-	initialize: function(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
-		this.regionId = regionId;
-		this.solarIndex = solarIndex;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.starColorIndex = starColorIndex;
-		this.mapObject = undefined;
-		this.metadata = {
-			race : raceId,
-			name : name,
-			fullyExplored : false
-			// Include further metadata here
-		};
-	},
+function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
+	if (!(this instanceof Star)) return new Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId);
 	
-	getBgColor : function () { return "background-color:rgb("+this.getStarColor()+");"; },
-	getStarColor : function() { return colors[this.starColorIndex] },
-	getHexSolarId : function() { return toHex(this.solarIndex,4); },
-	getRaceName : function() { return races[this.metadata.race]; },
-	getPosArray : function(){ return [this.x, this.y, this.z]; },
-	getPosVector : function() { return {x:this.x, y:this.y, z:this.z}; },
-	getName : function(){
-		if(settingsPanelApp.current_platform == nms_platforms.PLAT_PS4){
-			return this.metadata.name.ps4;
-		}
-		return this.metadata.name.pc;
-	}
-});
+	this.regionId = regionId;
+	this.solarIndex = solarIndex;
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.starColorIndex = starColorIndex;
+	this.mapObject = undefined;
+	this.metadata = {
+		race : raceId,
+		name : name,
+		fullyExplored : false
+		// Include further metadata here
+	};
+	
+	// Full names here
+	this.raceName = races[this.metadata.race];
+	this.systemName = (settingsPanelApp.current_platform == nms_platforms.PLAT_PS4)? this.metadata.name.ps4 : this.metadata.name.pc;
+	this.hexSolarId = toHex(this.solarIndex,4);
+	this.starColor = colors[this.starColorIndex];
+	this.bgColor = "background-color:rgb("+this.starColor+");";
+	
+	this.domNodeId = "#sys_"+this.regionId+"_"+this.solarIndex;
+	
+	// Methods
+	this.getPosArray = function(){ return [this.x, this.y, this.z]; }
+	this.getPosVector = function() { return {x:this.x, y:this.y, z:this.z}; }
+}
 
 var phoriaHandler = {
 	cameraAngleH: 1.5708,
@@ -69,7 +69,7 @@ var phoriaHandler = {
 		
 		canvas.width = canvasParent.getBoundingClientRect().width *0.99;
 		
-		var brandHeight = $("#brand").height();
+		var brandHeight = $("#mainnav").height();
 		var cliHeight = document.documentElement.clientHeight;
 		
 		canvas.height =  (cliHeight - brandHeight) * 0.95;
@@ -295,10 +295,10 @@ var phoriaHandler = {
 			var points = [];
 			points.push({x:0, y:0, z:0});
 			cube = Phoria.Entity.create({
-				id: star.getName(),
+				id: star.systemName,
 				points: points,
 				style: {
-					color: star.getStarColor(),
+					color: star.starColor,
 					drawmode: "point",
 					shademode: "plain",
 					linewidth: 2,
@@ -313,10 +313,10 @@ var phoriaHandler = {
 			var points = [];
 			points.push({x:0, y:0, z:0});
 			cube = Phoria.Entity.create({
-				id: star.getName(),
+				id: star.systemName,
 				points: points,
 				style: {
-					color: star.getStarColor(),
+					color: star.starColor,
 					drawmode: "point",
 					shademode: "plain",
 					linewidth: 0.5,
@@ -370,21 +370,7 @@ var regionHandler = {
 		var b = this.stars[3];
 		var linep = [{x: a.x, y:a.y, z:a.z}, {x: b.x, y:b.y, z:b.z}];
 		var edges = [{a: 0, b: 1}];
-		
-		var lineToSun = Phoria.Entity.create({
-         points: linep,
-         edges: edges,
-         style: {
-            color: [255,128,64],
-            drawmode: "wireframe",
-            shademode: "plain",
-            linewidth: 2,
-            linescale: 1,
-            objectsortmode: "back"
-         }
-		});
-		//phoriaHandler.addToScene(lineToSun);
-		
+
 		if(phoriaHandler.scene!=undefined){
 			phoriaHandler.camera.lookat = {x: points[3].x, y:points[3].y, z:points[3].z};
 			phoriaHandler.camera.position = {x: points[3].x, y:points[3].y, z:points[3].z+220};
@@ -420,14 +406,10 @@ var regionHandler = {
 		star.y-=this.regionCenter.y;
 		star.z-=this.regionCenter.z;
 		
-		if(star.solarIndex == 0){
-			console.log(star.x,star.y,star.z);
-		}
-		
 		// Create new object
 		var mapObject = phoriaHandler.generateStar(star, undefined);
-		star.mapObject = mapObject;
 		phoriaHandler.addToScene(mapObject);
+		star.mapObject = mapObject;
 		this.stars.push(star);
 	},
 	
@@ -485,8 +467,6 @@ var regionHandler = {
 		if(pack3!=null){ pack3.forEach(function(a){ results.push(a) });	}
 		if(pack4!=null){ pack4.forEach(function(a){ results.push(a) });	}
 
-		
-		
 		results.forEach(function(r){
 			r.error1 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[0])) - distances[0]);
 			r.error2 = Math.abs(regionHandler.getDistance(r,regionHandler.getStarByIndex(ids[1]))*NMS_SCALE_DIFFERENCE - distances[1]*NMS_SCALE_DIFFERENCE);
@@ -518,9 +498,9 @@ var regionHandler = {
 			var localStr = " ";
 			switch(labelType){
 				case 0: localStr = " "; break;
-				case 1: localStr = this.stars[i].getName(); break;
-				case 2: localStr = this.stars[i].getHexSolarId(); break;
-				case 3: localStr = this.stars[i].getHexSolarId() + " - " + this.stars[i].getName(); break;
+				case 1: localStr = this.stars[i].systemName; break;
+				case 2: localStr = this.stars[i].hexSolarId; break;
+				case 3: localStr = this.stars[i].hexSolarId + " - " + this.stars[i].systemName; break;
 			}
 			
 			if(max_label_length <= 0){
@@ -563,258 +543,197 @@ var regionHandler = {
 	// Usage as element changes
 */
 
-var uiSelectionApp = new Vue({
-	el: '#uiSelectionApp',
-	data: {
-		isTab : true,
-		viewSystemList : true,
-		viewMaterials: false,
-		viewSettings: false,
-		viewChangeCallbacks : Array(),
-		
+var settingsPanelApp ={
+	viewActive: false,
+	isTab : true,
+	current_platform : nms_platforms.PLAT_PS4,
+	items_per_page : 5,
+	max_name_length : 0,
+	changeCallbacks : [],
+
+	runCallbacks : function () {
+		var pthis = settingsPanelApp;
+		for(var i = 0; i < pthis.changeCallbacks.length; i++){
+			pthis.changeCallbacks[i](); // Run it
+		}
 	},
-	methods:{
-		runCallbacks : function(){
-			for(var i = 0; i < this.viewChangeCallbacks.length; i++){
-				this.viewChangeCallbacks[i](); // Run it
+	applySettings : function(){
+		var pthis = settingsPanelApp;
+		pthis.runCallbacks();
+	}
+	
+};
+var settingsPanelAppBind = rivets.bind($("#settingsPanelApp")[0], settingsPanelApp);
+
+
+var systemSelectionApp = {
+	
+	viewActive: true,
+	isTab : true,
+	systemFilter : "",
+	visibleSystems : [],
+	currentPage : 0,
+	maxPages : 1,
+	maxPerPage : settingsPanelApp.items_per_page,
+	pagesAvailable: false,
+	wikiLoading : false,
+	
+	
+	maxPerPageChange : function (){
+		var pthis =systemSelectionApp;
+		pthis.currentPage = 0;
+		pthis.maxPerPage = Number(settingsPanelApp.items_per_page);
+		pthis.refreshSystems();
+	},
+	prevPage : function(){
+		var pthis = systemSelectionApp;
+		if (pthis.currentPage>0){
+			pthis.currentPage--;
+		}
+		pthis.refreshSystems();
+	},
+	nextPage : function(){
+		var pthis = systemSelectionApp;
+		if (pthis.currentPage< pthis.maxPages-1){
+			pthis.currentPage++;
+		}
+		pthis.refreshSystems();
+	},
+	
+	dynamicSort : function (property) {
+		var sortOrder = 1;
+		if(property[0] === "-") {
+			sortOrder = -1;
+			property = property.substr(1);
+		}
+		return function (a,b) {
+			var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+			return result * sortOrder;
+		}
+	},
+	sortById : function (propertyName){
+		var pthis = systemSelectionApp;
+		pthis.privateData = pthis.privateData.sort(pthis.dynamicSort(propertyName));	
+	},	 
+	applyFilter : function(){
+		// Apply filters then gather info from current subview
+		var pthis = systemSelectionApp;
+		pthis.currentPage = 0; // Reset to 0
+		var localData = regionHandler.stars.slice();
+		
+		var localFilter = pthis.systemFilter.toLowerCase();
+		
+		var result = [];
+		for(var i = 0;i<localData.length;i++){
+
+			if(	localData[i].systemName.toLowerCase().includes(localFilter) ||
+				localData[i].hexSolarId.toLowerCase().includes(localFilter) ||
+				("race:"+(localData[i].raceName.toLowerCase())[0]) == (localFilter) ||
+				"color:"+(systemColors[localData[i].starColorIndex]) == (localFilter)
+				) {
+				result.push(localData[i]);
 			}
-			systemSelectionApp.viewActive = this.viewSystemList;
-			materialSelectionApp.viewActive = this.viewMaterials;
-			settingsPanelApp.viewActive = this.viewSettings;
-		},
-		showSystemList : function(){
-			this.viewSystemList = true;
-			this.viewMaterials = false;
-			this.viewSettings = false;
-			this.runCallbacks();
-		},
-		showMaterials : function(){
-			this.viewSystemList = false;
-			this.viewMaterials = true;
-			this.viewSettings = false;
-			this.runCallbacks();
-		},
-		showSettings : function(){
-			this.viewSystemList = false;
-			this.viewMaterials = false;
-			this.viewSettings = true;
-			this.runCallbacks();
+		}
+		
+		pthis.privateData = result;
+		pthis.sortById("solarIndex");
+		pthis.refreshSystems();
+	},
+	refreshSystems : function(){
+		var pthis = systemSelectionApp;
+		pthis.maxPages = Math.ceil(pthis.privateData.length / pthis.maxPerPage);
+		pthis.pagesAvailable = pthis.maxPages!=0;
+		pthis.visibleSystems = pthis.privateData.slice(pthis.currentPage*pthis.maxPerPage, pthis.currentPage*pthis.maxPerPage +pthis.maxPerPage);
+	},
+	showSystem : function(element){
+		var tag = "#sys_";
+		if(element.target.id.indexOf(tag!=-1)){
+			
+			var data = element.target.id.replace(tag,"").split("_");
+			var regionId = Number(data[0]);
+			var solarIndex = Number(data[1]);
+
+			regionHandler.lookAt(regionId,solarIndex);
 		}
 	}
 	
-});
-
-var settingsPanelApp = new Vue({
-	el: '#settingsPanelApp',
-	data: {
-		viewActive: false,
-		isTab : true,
-		current_platform : nms_platforms.PLAT_PS4,
-		items_per_page : 5,
-		max_name_length : 0,
-		changeCallbacks : [],
-	},
-	methods:{
-		runCallbacks : function () {
-			for(var i = 0; i < this.changeCallbacks.length; i++){
-				this.changeCallbacks[i](); // Run it
-			}
-		},
-		applySettings : function(){
-			this.runCallbacks();
-		}
-	}
-	
-});
-
-var systemSelectionApp = new Vue({
-	el: "#systemSelectionApp",
-	data:{
-		viewActive: true,
-		isTab : true,
-		systemFilter : "",
-		visibleSystems : [],
-		currentPage : 0,
-		currentHumanPage : 1,
-		maxPages : 1,
-		maxPerPage : settingsPanelApp.items_per_page,
-		wikiLoading : false
-	},
-	methods:{
-		maxPerPageChange : function (){
-			this.currentPage = 0;
-			this.maxPerPage = Number(settingsPanelApp.items_per_page);
-			this.refreshSystems();
-		},
-		prevPage : function(){
-			if (this.currentPage>0){
-				this.currentPage--;
-			}
-			this.refreshSystems();
-		},
-		nextPage : function(){
-			if (this.currentPage< this.maxPages-1){
-				this.currentPage++;
-			}
-			this.refreshSystems();
-		},
-		
-		dynamicSort : function (property) {
-			var sortOrder = 1;
-			if(property[0] === "-") {
-				sortOrder = -1;
-				property = property.substr(1);
-			}
-			return function (a,b) {
-				var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-				return result * sortOrder;
-			}
-		},
-		sortById : function (propertyName){
-			this.privateData = this.privateData.sort(this.dynamicSort(propertyName));	
-		},	 
-		applyFilter : function(){
-			// Apply filters then gather info from current subview
-			
-			this.currentPage = 0; // Reset to 0
-			var localData = regionHandler.stars.slice();
-			
-			var localFilter = this.systemFilter.toLowerCase();
-			
-			var result = [];
-			for(var i = 0;i<localData.length;i++){
-
-				if(	localData[i].getName().toLowerCase().includes(localFilter) ||
-					localData[i].getHexSolarId().toLowerCase().includes(localFilter) ||
-					("race:"+(localData[i].getRaceName().toLowerCase())[0]) == (localFilter) ||
-					"color:"+(systemColors[localData[i].starColorIndex]) == (localFilter)
-					) {
-					result.push(localData[i]);
-				}
-
-			}
-			
-			this.privateData = result;
-			this.sortById("solarIndex");
-			this.refreshSystems();
-		},
-		refreshSystems : function(){
-			this.maxPages = Math.ceil(this.privateData.length / this.maxPerPage);
-			this.visibleSystems = this.privateData.slice(this.currentPage*this.maxPerPage, this.currentPage*this.maxPerPage +this.maxPerPage);
-		},
-		showSystem : function(element){
-			var tag = "#sys_";
-			if(element.target.id.indexOf(tag!=-1)){
-				
-				var data = element.target.id.replace(tag,"").split("_");
-				var regionId = Number(data[0]);
-				var solarIndex = Number(data[1]);
-
-				regionHandler.lookAt(regionId,solarIndex);
-			}
-		}
-	}
-});
+};
 systemSelectionApp.privateData = []; // Outside values, not watched by apps (a lot faster, low low memory footprint)
 settingsPanelApp.changeCallbacks.push(systemSelectionApp.maxPerPageChange);
-
-var materialSelectionApp = new Vue({
-	el: "#materialSelectionApp",
-	data:{
-		viewActive: false,
-		isTab : true,
-		systemFilter : "",
-		visibleSystems : [],
-		currentPage : 0,
-		currentHumanPage : 1,
-		maxPages : 1,
-		maxPerPage : settingsPanelApp.items_per_page,
-		selectedMat: undefined,
-		materials : []
-	},
-	methods:{
-		
-		prevPage : function(){
-			if (this.currentPage>0){
-				this.currentPage--;
-			}
-			this.refreshSystems();
-		},
-		nextPage : function(){
-			if (this.currentPage< this.maxPages-1){
-				this.currentPage++;
-			}
-			this.refreshSystems();
-		},
-		
-		dynamicSort : function (property) {
-			var sortOrder = 1;
-			if(property[0] === "-") {
-				sortOrder = -1;
-				property = property.substr(1);
-			}
-			return function (a,b) {
-				var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-				return result * sortOrder;
-			}
-		},
-		sortById : function (propertyName){
-			this.privateData = this.privateData.sort(this.dynamicSort(propertyName));	
-		},	 
-		
-		refreshSystems : function(){
-			this.maxPages = Math.ceil(this.privateData.length / this.maxPerPage);
-			this.visibleSystems = this.privateData.slice(this.currentPage*this.maxPerPage, this.currentPage*this.maxPerPage +this.maxPerPage);
-		},
-
-		selectMaterial : function(element){
-			if(element.target.id.indexOf("#mat_"!=-1)){
-				var i = Number(element.target.id.replace("#mat_",""));
-				this.selectedMat = this.materials[i];
-				this.privateData = this.selectedMat.sources;
-				this.sortById("solarIndex");
-				this.refreshSystems();
-			}
-		},
-		showSystem : function(element){
-			if(element.target.id.indexOf("#matsys_"!=-1)){
-				var i = Number(element.target.id.replace("#matsys_",""));
-				regionHandler.lookAt(i);
-			}
-		}
-	}
-});
-materialSelectionApp.privateData = []; // Outside values, not watched by apps
-
-var drawPanelApp = new Vue({
-	el: "#drawPanelApp",
-	data:{
-		horizontalAngle: 90,
-		verticalAngle: 90,
-		zoomValue : 0,
-		labelType: 1
-	},
-	methods:{
-		
-		updateCameraRotationH : function(){
-			phoriaHandler.rotateCamXZDegree(this.horizontalAngle);
-		},
-		updateCameraRotationV : function(){
-			phoriaHandler.rotateCamYZDegree(this.verticalAngle);
-		},
-		updateZoom : function(){
-			phoriaHandler.doZoomBar(this.zoomValue);
-		},
-		updateLabels: function(){
-			regionHandler.updateLabels(Number(this.labelType),settingsPanelApp.max_name_length);
-		}
-
-	}
-});
-settingsPanelApp.changeCallbacks.push(drawPanelApp.updateLabels);
-
 /* Auto Bindings */
 
 $("#systemFilterTexBox").keyup(function(event){
 	systemSelectionApp.applyFilter();
 });
+
+var uiSelectionApp ={
+	isTab : true,
+	viewSystemList : true,
+	viewMaterials: false,
+	viewSettings: false,
+	systemSelectionApp : systemSelectionApp,
+	viewChangeCallbacks : Array(),
+	
+	runCallbacks : function(){
+		for(var i = 0; i < this.viewChangeCallbacks.length; i++){
+			this.viewChangeCallbacks[i](); // Run it
+		}
+		systemSelectionApp.viewActive = this.viewSystemList;
+		materialSelectionApp.viewActive = this.viewMaterials;
+		settingsPanelApp.viewActive = this.viewSettings;
+	},
+	showSystemList : function(){
+		this.viewSystemList = true;
+		this.viewMaterials = false;
+		this.viewSettings = false;
+		this.runCallbacks();
+	},
+	showMaterials : function(){
+		this.viewSystemList = false;
+		this.viewMaterials = true;
+		this.viewSettings = false;
+		this.runCallbacks();
+	},
+	showSettings : function(){
+		this.viewSystemList = false;
+		this.viewMaterials = false;
+		this.viewSettings = true;
+		this.runCallbacks();
+	}
+	
+};
+
+var uiSelectionAppBind = rivets.bind($("#systemSelectionApp")[0], uiSelectionApp);
+
+
+var drawPanelApp = {
+	
+	horizontalAngle: 90,
+	verticalAngle: 90,
+	zoomValue : 0,
+	labelType: 1,
+
+	
+	updateCameraRotationH : function(){
+		var pthis = drawPanelApp;
+		phoriaHandler.rotateCamXZDegree(pthis.horizontalAngle);
+	},
+	updateCameraRotationV : function(){
+		var pthis = drawPanelApp;
+		phoriaHandler.rotateCamYZDegree(pthis.verticalAngle);
+	},
+	updateZoom : function(){
+		var pthis = drawPanelApp;
+		phoriaHandler.doZoomBar(pthis.zoomValue);
+	},
+	updateLabels: function(){
+		var pthis = drawPanelApp;
+		regionHandler.updateLabels(Number(pthis.labelType),settingsPanelApp.max_name_length);
+	}
+
+};
+settingsPanelApp.changeCallbacks.push(drawPanelApp.updateLabels);
+var drawPanelAppBind = rivets.bind($("#drawPanelApp")[0], drawPanelApp);
+
+
+
