@@ -16,28 +16,152 @@ body{
 	font-family: 'HubFontText';
 }
 
-.logoParent{
-	padding-right: 0em;
+
+#content{ /* Big content landscape */
+	flex-grow: 2;
+	margin:5px;
+}
+
+#mainnav{
+	margin:4px;
+	padding: 0px;
+}
+
+#mainnav > li{
+	padding: 0px;
+	text-decoration: none;
+	display: inline-block;
 }
 
 #hubLogo{
-	vertical-align: middle;
+	width: 25px;
 }
 
-#mainsectionblock{
-	margin-top:0.5em !important;
+#nameTag{
+	font-size:2rem;
+	text-shadow: 1px 1px 5px #666, -1px -1px 5px #dedede, 1px 1px #666, -1px -1px #dedede;
 }
+
+#version{
+	border: 1px solid #6c7169;
+    padding: 4px;
+    background-color: #4a7980;
+    border-radius: 5px;
+}
+
+#author{}
+
+#menu{
+	min-width:75px;			
+	align-items: center;
+	margin-top:10px;
+	padding-right:4px;
+	margin-right:4px;
+	border-right: 2px solid #555555;
+}
+
+.menuitem{
+	text-align:center;
+	width:100%;
+	line-height:50px;
+	border-bottom: solid 3px transparent;
+}
+
+.menuitem:hover{
+	border-bottom: solid 3px #cecece;
+	cursor:pointer;
+}
+
+.menuitem.active{
+	border-bottom: solid 3px #039db5;
+}
+
+.page{
+	display:none;
+}
+
+.page.active{
+	display:inherit;
+}
+
+#content{ /* Big content landscape */
+	flex-grow: 2;
+	margin:5px;
+}
+
+#hint {
+	font-size: 0.9em;
+	padding-top: 5px;
+}
+
+.setting{
+	border-radius: 4px;
+	max-width:550px;
+}
+
+.setting + .setting{
+	margin-top: 15px;
+}
+
+.settingTitle{
+	background-color:#2b5156;
+	text-align:center;
+	min-height:40px;
+	line-height: 40px;
+}
+
+.settingText{
+	padding: 8px;
+	color: #000000;
+	background-color:#ffffff;
+	border-bottom:1px solid #dedede;
+}
+
+.settingValues{
+	background-color:#ffffff;
+	padding: 4px 0 4px 14px;
+}
+
+.settingValues input[type='text']{
+	font-size:1rem;
+}
+
+
+/* Portrait mode */
+@media (max-width : 600px) {
+	
+	#nameTag{
+		font-size:1.2rem;
+	}
+	
+	#menu{
+		border:none;
+		line-height:50px;
+		margin:0px 10px 5px 0px;
+	}
+	
+	#mainnav > li{
+		text-decoration: none;
+		text-align:center;
+		display: inherit;
+	}
+	
+	#author{
+		text-align:center;
+	}
+	
+	.menuitem{
+		flex-grow:1; 
+	}
+}
+
+/* OLD STUFF */
+
+
 
 table{
 	text-align:center;
 	width:100%;
-}
-
-.paneltitle{
-	font-size: 1.25em;
-    border-bottom: 1px solid #cecece;
-    margin-top: 15px;
-    margin-bottom: 10px;
 }
 
 .centered{
@@ -52,56 +176,10 @@ table{
 #listSearchKey{
 }
 
-#shareform{
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
-	border: solid 1px #dedede;
-	padding: 1em;
-}
-
 #distancessharedtable{
 	margin-top:0.5em;
 }
 
-#materialbuttonsgrid{
-	text-align:center;
-}
-
-#materialdescriptiontable{
-	border:1px solid #dadada;
-	margin-top:5px;
-}
-
-#materialSourcesGridTable{
-	margin-top:10px;
-	border:1px solid #dadada;
-}
-
-.materialbuttondiv{
-	width:30%;
-	max-width:30%;
-	display:inline-table;
-	padding:2px !important;
-	text-align:center;
-}
-
-.materialbutton{
-	color: #656666;
-    background-color: #e2e4e4;
-	margin:2px;
-	padding:0px;
-	white-space:wrap;
-	width:100%;
-}
-
-.sectionbtn{
-	white-space: normal !important;
-	line-height:1.75em;
-	padding:0 0.25em 0 0.25em !important;
-	text-align:center;
-	min-height:46px;
-	width:99%;
-}
 
 .gridStarRow:hover{
 	background-color: #EBE1D3;
@@ -150,13 +228,7 @@ table{
 	background-color: inherit;
 }
 
-#phoriaLabelSelect{
-	color:#ffffff; 
-	width:120px; 
-	height:37px; 
-	border:none;
-	background-color: #inherit;
-}
+
 
 .phoriaLabelOption{
 	background-color: #2c3e50;
