@@ -8,7 +8,7 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="./css/blaze.min.css">
+		<link rel="stylesheet" href="./css/pmd.css">
 		
 		<link rel="stylesheet" href="./css/style.css">
 		<link rel="stylesheet" href="./css/hubfont.css">
@@ -17,7 +17,7 @@
 		<script src="./js/phoria-min.js"></script>
 		<script src="./js/trilateration.js"></script>
 		
-		<script src="./js/vue.min.js"></script>	
+		<script src="./js/rivets.bundled.min.js"></script>	
 		<script src="./js/zepto.min.js"></script>
 		<script src="./js/metadata.js"></script>
 
@@ -46,49 +46,58 @@
 			}
 
 		</script>
-	
-		<div container style="max-width:inherit!important;">
-
-			<ul id="brand" class="c-nav c-nav--inline">
-				<li class="c-nav__content nopadding logoParent"><img id="hubLogo" src="./img/hublogo.svg" style="max-width:25px;"/></li>
-				<li class="c-nav__content nopadding">
-					NMS The Hub Management System 
-					<span class="c-badge c-badge--brand">v.0.4.1</span>
+		
+		<div class="ph-navbar">			
+			<ul id="mainnav">
+				<li>
+					<div class="ph-inline">
+						<img class="ph-inline" id="hubLogo" src="./img/hublogo.svg"/>
+						<div class="ph-inline" id="nameTag">NMS The Hub Management System </div>
+						<div class="ph-inline" id="version">v.0.5</div>
+					</div>
+				</li>
+			
+				<li>
+					<div id="author" class="ph-inline">by pahefu</div>
 				</li>
 			</ul>
+		</div>
+	
+		<div id="layout" class="ph-flex ph-horz ph-vertmob">
 
-			<div  class="o-grid  o-grid--wrap">
-				<div id="leftpanel" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-40@small">
-					
-					<div id="mainsectionblock" class="c-card">
-
-						<div class="c-tabs">
-							<div class="c-tabs__headings" id="uiSelectionApp">
-								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewSystemList }" id="systemListTab" v-on:click="showSystemList">
-									<i class="icon-target"></i> System selection
-								</div>
-								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewMaterials }" id="materialsTab" v-on:click="showMaterials">
-									<i class="icon-chart-line"></i> Materials list
-								</div>	
-								<div v-bind:class="{ 'c-tab-heading': isTab , 'c-tab-heading--active': viewSettings }" id="materialsTab" v-on:click="showSettings">
-									<i class="icon-space-shuttle"></i> Settings
-								</div>										
-							</div>
+			<div id="menu" class="ph-flex ph-vert ph-horzmob ph-mob100p">
+				<div class="menuitem active" rel="page1"><i class="icon-target"></i></div>
+				<div class="menuitem" rel="page2"><i class="icon-space-shuttle"></i></div>
+			</div>
+			
+			<div id="content" class="ph-grow2">
+				<div class="page active" id="page1">
+					<div class="ph-row">
+						<div class="ph-c-1-3 ph-c-tab-1-1 ph-c-m-1-1">
+				
+							<div class="ph-sectheader"><span class="ph-secticon">&gt;</span> System selection</div>
 							
+							<!--
+							
+							<button class="ph-btn ripple"><i class="icon-chart-line"></i> By Name</button>
+							<button class="ph-btn ripple"><i class="icon-chart-line"></i> By Material</button>
+					
+							<hr/>
+					
+							-->
+					
 							<!-- System selection APP -->
-							<div id="systemSelectionApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
-								
-								<div class="paneltitle" >System selection</div> 
-								
-								<div class="c-alert c-alert--brand" v-show="wikiLoading">
+							<div id="systemSelectionApp">
+					
+								<div class="ph-info ph-info" rv-show="systemSelectionApp.wikiLoading">
 									Loading data from wiki ...
 								</div>
-								
+					
 								<div>Click on a system name to see it or type below to filter the list in real time</div>
-								
-								<input type="text" class="c-field" id="systemFilterTexBox" v-model="systemFilter" :disabled="wikiLoading">
-								<div class="c-hint" style="position:inherit;">Special filters available: <strong>race:Initial letter</strong> and <strong>color:Initial letter</strong> (i.e race:g , color:y)</div>
-								
+					
+								<input type="text" class="ph-100p" id="systemFilterTexBox" rv-value="systemSelectionApp.systemFilter" rv-disasbled="systemSelectionApp.wikiLoading">
+								<div id="hint" style="position:inherit;">Special filters available: <strong>race:Initial letter</strong> and <strong>color:Initial letter</strong> (i.e race:g , color:y)</div>
+							
 								<div id="listGridParent">
 									<table id="systemGridTable" class="c-table">
 										<thead class="c-table__head">
@@ -101,209 +110,126 @@
 											</tr>
 										</thead>
 										<tbody class="c-table__body">
-											<template v-for="system of visibleSystems">
-												<tr class="gridStarRow c-table__row">
-													<td class="c-table__cell">{{system.regionId}}</td>
-													<td class="c-table__cell">{{system.getHexSolarId()}}</td>
-													<td class="c-table__cell gridStarName" :id='"#sys_"+system.regionId+"_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
-													<td class="c-table__cell"><div class="gridStarColor" :style="system.getBgColor()"></div></td>
-													<td class="c-table__cell">{{system.getRaceName()}}</td>
-												</tr>
-											</template>
+											<tr rv-each-system="systemSelectionApp.visibleSystems" class="system">
+												<td class="c-table__cell">{{system.regionId}}</td>
+												<td class="c-table__cell">{{system.hexSolarId}}</td>
+												<td class="c-table__cell gridStarName" rv-id="system.domNodeId" rv-on-click="systemSelectionApp.showSystem" >{{system.systemName}}</td>
+												<td class="c-table__cell"><div class="gridStarColor" rv-style="system.bgColor"></div></td>
+												<td class="c-table__cell">{{system.raceName}}</td>
+											</tr>
+											
 										</tbody>
 									</table>
 									
-									<div id="systemListFooter" v-if="visibleSystems.length>0">
+									<div id="systemListFooter" rv-show="systemSelectionApp.pagesAvailable">
 										<hr/>
-										<div> Page {{currentPage +1 }} of {{maxPages}}   
-											<button class="c-button icon-left-open u-small" title="previous" v-on:click="prevPage"> </button> 
-											<button class="c-button icon-right-open u-small" title="next"  v-on:click="nextPage"> </button> 
+										<div> Page {{systemSelectionApp.currentPage | plus 1 }} of {{systemSelectionApp.maxPages}}   
+											<button class="c-button icon-left-open u-small" title="previous" rv-on-click="systemSelectionApp.prevPage"> </button> 
+											<button class="c-button icon-right-open u-small" title="next" rv-on-click="systemSelectionApp.nextPage"> </button> 
 										</div>
 									</div>
 								</div>
-	
+
 							</div>
 							<!-- End of SystemSelection APP -->
 							
-							<!-- Material list APP -->
-							<div id="materialSelectionApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
-								<div class="paneltitle">Materials list</div>
-								<div>click on a material button to check where you can find it in the hub</div>
-
-								<div id="materialbuttonsgrid">
-									<template v-for="(mat, index) of materials">
-										<div column="6" class="materialbuttondiv">
-											<button class="materialbutton c-button u-medium" :id='"#mat_"+mat.id' v-on:click="selectMaterial">{{mat.name}}</button>
-										</div>
-									</template>
-								</div>
-
-								<div>
-									<div class="paneltitle">Material information</div>
-									<div id="materialDescriptionParent">
-										<div v-if="selectedMat!=undefined">
-											<table id="materialdescriptiontable" class="c-table" >
-												<thead class="c-table__head">
-													<tr class="c-table__row c-table__row--heading">
-														<th class="c-table__cell">Name</th><th class="c-table__cell">Requires tool</th><th class="c-table__cell">Available always</th><th class="c-table__cell">Notes</th>
-													</tr>
-												</thead>
-												<tbody class="c-table__body">
-													<tr class="c-table__row">
-														<td class="c-table__cell">{{selectedMat.name}}</td>
-														<td class="c-table__cell">{{selectedMat.tool}}</td>
-														<td class="c-table__cell">{{selectedMat.allPlanets}}</td>
-														<td class="c-table__cell">{{selectedMat.notes}}</td>
-													</tr>
-												</tbody>
-											</table>
-										</div>
-										<div v-else>
-											Pick one material to see where to get it.
-										</div>
-									</div>
-									
-									<div class="paneltitle">Associated systems</div>
-									
-									<!-- Material result -->
-									<div id="materialGridParent">
-
-										<!-- Material sources -->
-										<div v-if="selectedMat!=undefined">
-											<!-- Visible table -->
-											<div v-if="visibleSystems.length!=0">
-												<table id="materialSourcesGridTable"  class="c-table">
-													<thead class="c-table__head">
-														<tr  class="c-table__row c-table__row--heading">
-															<th class="c-table__cell">ID</th><th class="c-table__cell">System Name</th><th class="c-table__cell">Location</th><th class="c-table__cell">Notes</th>
-														</tr>
-													</thead>
-													<tbody class="c-table__body">
-														<template v-for="system of visibleSystems">
-															<tr class="gridStarRow c-table__row">
-																<td class="c-table__cell">{{system.solarIndexHex}}</td>
-																<td class="gridStarName c-table__cell" :id='"#matsys_"+system.solarIndex' v-on:click="showSystem" >{{system.getName()}}</td>
-																<td class="c-table__cell">
-																	<div v-if="system.inStation">In space station</div>
-																	<div v-else>In planet</div>
-																</td>
-																<td class="c-table__cell">{{system.notes}}</td>
-															</tr>
-														</template>
-													</tbody>
-												</table>
-												
-												<hr/>
-											
-												<div> Page {{currentPage +1 }} of {{maxPages}}   
-													<button class="c-button icon-left-open u-small" title="previous" v-on:click="prevPage"> </button> 
-													<button class="c-button icon-right-open u-small" title="next"  v-on:click="nextPage"> </button> 
-												</div>
-										
-											</div>
-											<div v-else>
-												<div v-if="!selectedMat.allPlanets">
-													<div class="centered"><strong>No associated systems known</strong></div>
-												</div>
-												<div v-else>
-													<div class="centered"><strong>Available in all planets</strong></div>
-												</div>
-											</div>
-
-										</div>										
-									</div>
-								</div>
+							<div id="poweredBy">
+								<div class="poweredByContent">
+									Powered by NMS Wiki at 
+									<a class="poweredByContent" href="http://nomanssky.gamepedia.com">
+										<img src="http://nomanssky.gamepedia.com/skins/Hydra/images/netbar/logo-fallback.png" alt="Gamepedia wiki"/>
+									</a>
+								</div>						
 							</div>
-							<!-- End of material list APP -->
 							
-							<!-- Settings APP -->
-							<div id="settingsPanelApp" v-bind:class="{ 'c-tabs__tab': isTab , 'c-tabs__tab--active': viewActive }">
-							
-								<fieldset class="o-fieldset">
-									<div class="c-input-group">
-									  <button class="c-button c-button--brand">Platform</button>
-									  <div class="o-field">
-										<select class="c-field" v-model="current_platform" v-on:change="applySettings">
-											<option value="1" selected>PS4</option>
-											<option value="2">PC</option>
-										</select>
-									  </div>
-									</div>
-								</fieldset>
-								
-								<fieldset class="o-fieldset">
-									<div class="c-input-group">
-									  <button class="c-button c-button--brand">Items per page</button>
-									  <div class="o-field">
-										<input type="text" class="c-field" v-model="items_per_page" v-on:change="applySettings">
-									  </div>
-									</div>
-								</fieldset>
-								
-								<fieldset class="o-fieldset">
-									<div class="c-input-group">
-									  <button class="c-button c-button--brand">Max name length</button>
-									  <div class="o-field">
-										<input type="text" class="c-field" v-model="max_name_length" v-on:change="applySettings">
-									  </div>
-									</div>
-								</fieldset>
-							
-							</div>
-							<!-- End of settings APP -->
-						</div>
-					</div>
-					
-					<div id="poweredBy">
-						<div class="poweredByContent">
-							Powered by NMS Wiki at 
-							<a class="poweredByContent" href="http://nomanssky.gamepedia.com">
-								<img src="http://nomanssky.gamepedia.com/skins/Hydra/images/netbar/logo-fallback.png" alt="Gamepedia wiki"/>
-							</a>
-						</div>						
-					</div>
-				</div>
-								
-				<div id="drawPanelApp" class="o-grid__cell o-grid__cell--width-100 o-grid__cell--width-60@small">
-					<div id="canvasControls" style="position:absolute;">
-						<ul class="c-card c-card--menu">
-							<li class="c-card__item c-card__item--brand">
-								<div class="dinline">Showing: </div>								  
-								<select class="c-field dinline" id="phoriaLabelSelect" v-model="labelType" v-on:change="updateLabels">
-									<option class="phoriaLabelOption" value="1" selected>Names</option>
-									<option class="phoriaLabelOption" value="2">IDS</option>
-									<option class="phoriaLabelOption" value="3">Mixed</option>
-									<option class="phoriaLabelOption" value="0">None</option>
-								</select>
-							</li>
+						</div>		
+						<div class="ph-c-2-3 ph-c-tab-1-1 ph-c-m-1-1">
 						
-							<li class="c-card__item c-card__item--brand">
-								<div class="dinline">Rotation: </div>						  
-								<input type="range" class="dinline c-range phoriaRotationRange" v-model="horizontalAngle" v-on:input="updateCameraRotationH" v-on:change="updateCameraRotationH" min="0" max="270" step="1">
-							</li>
-							<li class="c-card__item c-card__item--brand">
-								<div class="dinline">V Rotation: </div>						  
-								<input type="range" class="dinline c-range phoriaRotationRange" v-model="verticalAngle"  v-on:input="updateCameraRotationV" v-on:change="updateCameraRotationV" min="0" max="180" step="1">
-							</li>
-							<li class="c-card__item c-card__item--brand">
-								<div class="dinline">Zoom: </div>						  
-								<input type="range" class="dinline c-range phoriaRotationRange" v-model="zoomValue"  v-on:input="updateZoom" v-on:change="updateZoom" min="-100" max="100" step="1">
-							</li>
-						</ul>
-					</div>
-					<div id="canvasParent">
+							<div id="drawPanelApp">
+								<div id="canvasControls" style="position:absolute;">
+									<ul class="c-card c-card--menu">
+										<li class="c-card__item c-card__item--brand">
+											<div class="dinline">Showing: </div>								  
+											<select class="c-field dinline" id="phoriaLabelSelect" rv-value="labelType" rv-on-change="updateLabels">
+												<option class="phoriaLabelOption" value="1" selected>Names</option>
+												<option class="phoriaLabelOption" value="2">IDS</option>
+												<option class="phoriaLabelOption" value="3">Mixed</option>
+												<option class="phoriaLabelOption" value="0">None</option>
+											</select>
+										</li>
+									
+										<li class="c-card__item c-card__item--brand">
+											<div class="dinline">Rotation: </div>						  
+											<input type="range" class="dinline c-range phoriaRotationRange" rv-value="horizontalAngle" rv-on-input="updateCameraRotationH" rv-on-change="updateCameraRotationH" min="0" max="270" step="1">
+										</li>
+										<li class="c-card__item c-card__item--brand">
+											<div class="dinline">V Rotation: </div>						  
+											<input type="range" class="dinline c-range phoriaRotationRange" rv-value="verticalAngle" rv-on-input="updateCameraRotationV" rv-on-change="updateCameraRotationV" min="0" max="180" step="1">
+										</li>
+										<li class="c-card__item c-card__item--brand">
+											<div class="dinline">Zoom: </div>						  
+											<input type="range" class="dinline c-range phoriaRotationRange" rv-value="zoomValue" rv-on-input="updateZoom" rv-on-change="updateZoom" min="-100" max="100" step="1">
+										</li>
+									</ul>
+								</div>
+								<div id="canvasParent">
+									<div id="canvasButtonParent">
+								</div>
 
-						<div id="canvasButtonParent">
-							
+								<!-- Real canvas rendering here -->
+								<canvas id="canvas" ></canvas>
+								<!-- End of Canvas rendering -->
+								</div>
+							</div>
+						
+							<!-- End of drawing app -->
+						
 						</div>
-
-						<!-- Real canvas rendering here -->
-						<canvas id="canvas" ></canvas>
-						<!-- End of Canvas rendering -->
+					</div> <!-- First row -->
+					
+					
+					
+				</div>
+				
+				<div class="page" id="page2">
+					<div class="ph-sectheader"><span class="ph-secticon">&gt;</span> Settings</div>				
+					<!-- Settings APP -->
+					<div id="settingsPanelApp">
+					
+						<div class="setting">
+							<div class="settingTitle">Platform</div>
+							<div class="settingText">Select your gaming platform</div>
+							<div class="settingValues">
+								<select class="c-field" rv-value="current_platform" rv-on-change="applySettings">
+									<option value="1" selected>PS4</option>
+									<option value="2">PC</option>
+								</select>
+							</div>
+						</div>
+						
+						<div class="setting">
+							<div class="settingTitle">Items per page</div>
+							<div class="settingText">Max items shown per page</div>
+							<div class="settingValues">
+								<input type="text" class="c-field" rv-value="items_per_page" rv-on-input="applySettings">
+							</div>
+						</div>
+						
+						<div class="setting">
+							<div class="settingTitle">Max name length</div>
+							<div class="settingText">Max name length shown on the 3d map</div>
+							<div class="settingValues">
+								<input type="text" class="c-field" rv-value="max_name_length" rv-on-input="applySettings">
+							</div>
+						</div>
+						
 					</div>
+					<!-- End of settings APP -->
 				</div>
 			</div>
 		</div>
+		
+		
 
 		<script src="./js/rdl.js"></script>
 
