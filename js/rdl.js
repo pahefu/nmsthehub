@@ -26,6 +26,20 @@ var nms_platforms = {
 
 // Stars and handlers
 
+// Select box
+var c = Phoria.Util.generateUnitCube(50);
+var cubeParent = Phoria.Entity.create({
+	points: c.points,
+	edges: c.edges,
+	polygons: c.polygons,
+	style:{
+		color: [0xee,0xee,0xee],
+		//opacity: 0.15 ,
+		drawmode: "wireframe"
+	}
+});
+
+
 function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
 	if (!(this instanceof Star)) return new Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId);
 	
@@ -35,7 +49,8 @@ function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
 	this.y = y;
 	this.z = z;
 	this.starColorIndex = starColorIndex;
-	this.mapObject = undefined;
+	this.parentMapObject = null;
+	
 	this.metadata = {
 		race : raceId,
 		name : name,
@@ -85,7 +100,7 @@ var phoriaHandler = {
 		scene.graph.push(new Phoria.DistantLight());
 		  
 		// Region enclosure cube
-		var c = Phoria.Util.generateUnitCube(50);
+		/*var c = Phoria.Util.generateUnitCube(50);
 		var cubeParent = Phoria.Entity.create({
 			points: c.points,
 			edges: c.edges,
@@ -96,7 +111,7 @@ var phoriaHandler = {
 				drawmode: "wireframe"
 			}
 		});
-		scene.graph.push(cubeParent.translateY(25));
+		scene.graph.push(cubeParent.translateY(25));*/
 		
 		// Select box
 		var c = Phoria.Util.generateUnitCube(1);
@@ -108,7 +123,6 @@ var phoriaHandler = {
 				color: [0xff,0x00,0x00],
 				drawmode: "wireframe"
 			},
-			
 		});
 		selectBox.position = [8000,8000,8000]; // Infinity and beyond!
 		selectBox.translate(selectBox.position);
@@ -287,7 +301,6 @@ var phoriaHandler = {
 	generateStar : function(star, parent){
 		var scale = 0.25;
 		
-		
 		var cube = undefined;
 		
 		if(star.solarIndex==0){
@@ -311,7 +324,7 @@ var phoriaHandler = {
 		}else{
 			
 			var points = [];
-			points.push({x:0, y:0, z:0});
+			points.push({x:star.x, y:star.y, z:star.z});
 			cube = Phoria.Entity.create({
 				id: star.systemName,
 				points: points,
@@ -323,18 +336,59 @@ var phoriaHandler = {
 					linescale: 50,
 					objectsortmode: "back"
 				}
-			}).translateX(star.x).translateY(star.y).translateZ(star.z);
+			});
+			
+			var debugEntity = new Phoria.Entity();
+			debugEntity.id = cube.id;
+			debugEntity.points = [ {x:star.x, y:star.y, z:star.z} ];
+			debugEntity.style = {
+				drawmode: "point",
+				shademode: "callback",
+				geometrysortmode: "none",
+				objectsortmode: "front"    // force render on-top of everything else
+			};
+
+			// config object - will be combined with input later
+			debugEntity.config = {};
+
+			debugEntity.onRender(function(ctx, x, y) {
+				
+				var tx = phoriaHandler.camera.position.x;
+				var ty = phoriaHandler.camera.position.y;
+				var tz = phoriaHandler.camera.position.z;
+				
+				var sx = star.x;
+				var sy = star.y;
+				var sz = star.z;
+				
+				var dist = Math.sqrt((Math.pow(tx-sx,2)) + (Math.pow(ty-sy,2)) + (Math.pow(tz-sz,2)));
+				
+				if(dist < 50 || regionHandler.selectedStar == star){
+					
+					// render debug text
+					ctx.fillStyle = "#999999";
+					ctx.font = "14pt Helvetica";
+					var textPos = y;
+					textPos += 5;
+					ctx.fillText(cube.id ? cube.id : "unknown - set Entity 'id' property", x+5, textPos);
+					
+				}
+			});
+			cube.children.push(debugEntity);
+			
 			
 		}
 	   
 	   
 	   
-	   Phoria.Entity.debug(cube, {
+	  /* Phoria.Entity.debug(cube, {
 		  showId: true,
 		  showAxis: false,
 		  showPosition: false,
 		  fillStyle : "#999999"
 	   });
+	   */
+	   
 	   return cube;
 	}
 	
@@ -381,6 +435,8 @@ var regionHandler = {
 			//phoriaHandler.renderFrame();
 		}
 
+		phoriaHandler.scene.graph.push(cubeParent);
+		
 	},
 	
 	getStarByIndex: function(solarIndex){
@@ -408,8 +464,11 @@ var regionHandler = {
 		
 		// Create new object
 		var mapObject = phoriaHandler.generateStar(star, undefined);
-		phoriaHandler.addToScene(mapObject);
+		//phoriaHandler.addToScene(mapObject);
 		star.mapObject = mapObject;
+		
+		cubeParent.children.push(mapObject);
+		
 		this.stars.push(star);
 	},
 	
