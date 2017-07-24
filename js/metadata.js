@@ -76,71 +76,94 @@ var materials = {
 }
 
 var loadMetaData = function(){
-
-	/* Materials metadata */
-
-/*	materials.addSource(1,0x12b, false,"");
-	materials.addSource(5,0x12b, false,"");
-	materials.addSource(8,0x184, false,"");
-	materials.addSource(9,0x150, false,"");
-	materials.addSource(9,0x203, false,"");	
-	materials.addSource(10,0xdd, false,"");
-	materials.addSource(12,0x12b, false,"");
-	materials.addSource(13,0x163, true,"Buy at Merchants");
-	materials.addSource(14,0x203,false,"");
-	materials.addSource(15,0x11c,true,"Buy at Merchants");
-	materials.addSource(16,0xdd,true,"Buy at Merchants");
-	
-	// Show the info to the current values
-	materialSelectionApp.materials = materials.data;	*/
-	
-	
 }
 
 function loadDataFromWiki(){
 	systemSelectionApp.wikiLoading = true;
+	
 	$.ajax({ 
 		
 		url: 'https://nomanssky.gamepedia.com/api.php?action=parse&format=json&prop=wikitext&page=HubMSData',
 		dataType: 'jsonp',
 		success: function(data) {
-			var externalData = data.parse.wikitext["*"].split("\n\n");
-			var systemDataRe = new RegExp("([A-Za-z]+:) ([0-9A-Fa-f]+) \"([^]+)\"@PS4 \"([^]+)\"@PC ([A-Za-z]+) ([A-Za-z]+)");
-			
-			for(var i = 0; i< externalData.length;i++){
+		
+			data = data.parse.wikitext["*"];
+			var items = data.split("hubentry");
+
+			for(var i = 0;i<items.length;i++){
+				if(items[i].indexOf("Info Type")<0){ continue;}
+				var lines = items[i].split("\n").filter(function(a){ return (a.indexOf("|") ==0 && a.indexOf("|-")<0 && a.indexOf("|}")<0);});
+				
 				var regionId = 1;
-				if(externalData[i].indexOf("SystemData")>=0){ // Only if data present
-					var systemInfo = externalData[i].split("\n");
-					
-					var line_1 = systemDataRe.exec(systemInfo[0]);
-					if(line_1!=null){
-						var offset = 2;
-						var systemSolarIndex = fromHex(line_1[offset++]);
-						var namePack = {
-							ps4 : line_1[offset++],
-							pc : line_1[offset++]
-						};
-						systemColor = systemColors.indexOf(line_1[offset++].toLowerCase()[0]); 
-						systemRace = systemRaces.indexOf(line_1[offset++].toLowerCase()[0]);
-												
-						// system region row
-						regionId = Number(systemInfo[1].split(" ")[1]);
+				var systemSolarIndex = 0;	
+				var namePack = {
+					ps4 : "",
+					pc : ""
+				};					
+				var systemColor = "";
+				var systemRace = "";
+				var distanceIds = null;
+				var distanceValues = null;
+				var metadata = {};
+				
+				var parsingOk = true;
+				for (var j = 0;j<lines.length;j++){
+					var values = lines[j].split("|").filter(function(a){ return (a.length>=1 && a.indexOf("=")<0) });
+					var key = values[0];
+					try{
+						for(var k = 0;k<values.length;k++){
+							
+							switch(key){
+								case "SystemData" :  
+									regionId = Number(values[1]);
+									systemSolarIndex = fromHex(values[2]);
+
+									namePack.ps4 = values[3];
+									namePack.pc = values[4];
+									systemColor = systemColors.indexOf(values[5].toLowerCase()[0]); 
+									systemRace = systemRaces.indexOf(values[6].toLowerCase()[0]); 
+									
+								break;
+								
+								case "DistanceIds": 
+									distanceIds = [values[1],values[2],values[3], values[4]];
+								break;
+								
+								case "DistanceValues" :
+									distanceValues = [values[1],values[2],values[3], values[4]];
+								break;
+								
+								case "SystemDescription" : 
+									metadata.SystemDescription = values[1];
+								break;
+								
+								case "SystemTags" : 
+									metadata.SystemTags = values[1];
+								break;
+								
+								case "SystemPage" : 
+									metadata.SystemPage = values[1];
+								break;
+							}
+						}
 						
-						// Next rows (distance data)
-						var distanceIds = systemInfo[2].split(" ").slice(1).join("|");
-						var distanceValues = systemInfo[3].split(" ").slice(1).join("|");
-						
-						regionHandler.addPseudoStar(regionId,systemSolarIndex,namePack,systemColor,systemRace, distanceIds, distanceValues);
-						
-					}else{
-						console.log("Failed to parse line: ", systemInfo[0])
+					}catch(err){
+						parsingOk = false;
+						console.log("Cannot parse system: ", err);
 					}
 				}
+				
+				if(parsingOk){
+					regionHandler.addPseudoStar(regionId,systemSolarIndex,namePack,systemColor,systemRace, distanceIds, distanceValues);
+				}
+				
 			}
-			
-			systemSelectionApp.applyFilter(); // Autocalls system list refresh here
+
+			systemSelectionApp.applyFilter();
 			systemSelectionApp.wikiLoading = false;
 		}
 	});
-
+	
+	
+	
 }

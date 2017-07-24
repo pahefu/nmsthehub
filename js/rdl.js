@@ -40,7 +40,7 @@ var cubeParent = Phoria.Entity.create({
 });
 
 
-function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
+function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId, metadata){
 	if (!(this instanceof Star)) return new Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId);
 	
 	this.regionId = regionId;
@@ -49,17 +49,24 @@ function Star(regionId,solarIndex,name,x,y,z, starColorIndex,  raceId){
 	this.y = y;
 	this.z = z;
 	this.starColorIndex = starColorIndex;
-	this.parentMapObject = null;
-	
+	this.mapObject = undefined;
 	this.metadata = {
 		race : raceId,
 		name : name,
-		fullyExplored : false
-		// Include further metadata here
+		systemTags : "",
+		systemDescription : "",
+		systemPage : ""
 	};
+	
+	if(metadata){ // Passed data
+		this.metadata.systemTags = metadata.SystemTags;
+		this.metadata.systemDescription = metadata.SystemDescription;
+		this.metadata.systemPage = metadata.SystemPage;
+	}
 	
 	// Full names here
 	this.raceName = races[this.metadata.race];
+
 	this.systemName = (settingsPanelApp.current_platform == nms_platforms.PLAT_PS4)? this.metadata.name.ps4 : this.metadata.name.pc;
 	this.hexSolarId = toHex(this.solarIndex,4);
 	this.starColor = colors[this.starColorIndex];
@@ -379,16 +386,6 @@ var phoriaHandler = {
 			
 		}
 	   
-	   
-	   
-	  /* Phoria.Entity.debug(cube, {
-		  showId: true,
-		  showAxis: false,
-		  showPosition: false,
-		  fillStyle : "#999999"
-	   });
-	   */
-	   
 	   return cube;
 	}
 	
@@ -472,14 +469,14 @@ var regionHandler = {
 		this.stars.push(star);
 	},
 	
-	addPseudoStar: function (regionId,solarIndex,name,starColorIndex, raceId, blobids, blobdistances){
-		var ids = blobids.split("|");
-		var distances = blobdistances.replace(/,/g , ".").split("|");
+	addPseudoStar: function (regionId,solarIndex,name,starColorIndex, raceId, blobids, blobdistances, metadata){
+		var ids = blobids;
+		var distances = blobdistances;
 		var trilatePoints = [];
 		var NMS_SCALE_DIFFERENCE = 4.0;
 		
-		for(var i = 0;i<ids.length;i++){
-			
+	
+		for(var i = 0;i<ids.length;i++){		
 			if(ids[i].length==0){ // Solve spaces here
 				return;
 			}
@@ -487,7 +484,7 @@ var regionHandler = {
 			var hexId = 0;
 			var distanceRegion = 1;
 			
-			if(ids[i]!="0"){
+			if(ids[i].trim()!="0"){
 				var vals = ids[i].split("_");
 				hexId = parseInt(vals[0],16);
 				distanceRegion = Number(vals[1]);
@@ -496,10 +493,10 @@ var regionHandler = {
 				distanceRegion = 1;
 			}
 			ids[i] = hexId; // Hotfix
-				
+		
 			distances[i] = Number(distances[i]); 
 			if(distances[i]<100000) { distances[i] /= NMS_SCALE_DIFFERENCE; } // NMS lineal distance is not distance 
-			
+
 			for(var j = 0;j<this.stars.length;j++){
 				if(this.stars[j].solarIndex == hexId && this.stars[j].regionId == distanceRegion){
 					var tp = this.stars[j];
@@ -544,7 +541,7 @@ var regionHandler = {
 		var i = 0;
 		results.forEach(function(r){
 			if(i==0){
-				regionHandler.addStar(new Star(regionId,solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId));
+				regionHandler.addStar(new Star(regionId,solarIndex,name,r.x+20811.32748949516, r.y-16.15057093374628,r.z-5.244964575966744, starColorIndex, raceId, metadata));
 			}
 			i++;
 		});
@@ -793,6 +790,5 @@ var drawPanelApp = {
 };
 settingsPanelApp.changeCallbacks.push(drawPanelApp.updateLabels);
 var drawPanelAppBind = rivets.bind($("#drawPanelApp")[0], drawPanelApp);
-
 
 
